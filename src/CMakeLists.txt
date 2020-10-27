@@ -1,50 +1,48 @@
 cmake_minimum_required(VERSION 2.8)
+include(ExternalProject)
 
 # set gcc and g++ compiler
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_CXX_COMPILER g++)
 
-# set the project name
+# set the project nameExternalProject_Add
 project(HAPoG C)
 enable_language(C)
 
-# add compile options
-set(CMAKE_C_FLAGS "-O3 -g")
-
 # Add htslib
-set(HTSLIB ${CMAKE_CURRENT_SOURCE_DIR}/htslib/libhts.a)
+set(HTSLIB_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/htslib)
+set(HTSLIB_INSTALL make install prefix=${HTSLIB_PREFIX}/src/htslib/)
 
-# create a custom target called build_scintilla that is part of ALL
-# and will run each time you type make 
-add_custom_target(build_htslib ALL 
-  COMMAND autoheader
-  COMMAND autoconf
-  COMMAND ./configure --prefix=${CMAKE_CURRENT_SOURCE_DIR}/htslib
-  COMMAND ${CMAKE_MAKE_PROGRAM}
-  COMMAND ${CMAKE_MAKE_PROGRAM} install
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/htslib/
-  COMMENT "Original htslib makefile target")
+ExternalProject_Add(htslib
+  PREFIX ${HTSLIB_PREFIX}
+  GIT_REPOSITORY "https://github.com/samtools/htslib"
+  GIT_TAG "1.9"
+  BUILD_IN_SOURCE 1
+  CONFIGURE_COMMAND autoheader && autoconf && ${HTSLIB_PREFIX}/src/htslib/configure --prefix=${HTSLIB_PREFIX}/src/htslib/
+  BUILD_COMMAND make
+  INSTALL_COMMAND ${HTSLIB_INSTALL}
+  LOG_DOWNLOAD 0
+  LOG_UPDATE 0
+  LOG_CONFIGURE 0
+  LOG_BUILD 0
+  LOG_TEST 0
+  LOG_INSTALL 0
+)
 
-# now create an imported static target
-add_library(htslib STATIC IMPORTED)
-# Import target "scintilla" for configuration ""
-set_property(TARGET htslib APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
-set_target_properties(htslib PROPERTIES
-  IMPORTED_LOCATION_NOCONFIG "${HTSLIB}")
+ExternalProject_Get_Property(htslib install_dir)
+include_directories(${HTSLIB_PREFIX}/src/htslib/include)
 
-# now you can use scintilla as if it were a regular cmake built target in your project
-add_dependencies(htslib build_htslib)
-
-
-
-# add the executable
+# Add the executable
+set(CMAKE_C_FLAGS "-O3 -g")
 add_executable(hapog polish_consensus.c alipile.c hash.c polished.c)
 
-target_include_directories(hapog PRIVATE ${HAPoG_SOURCE_DIR}/htslib)
-INCLUDE_DIRECTORIES(${HAPoG_SOURCE_DIR}/htslib/htslib)
+# Add htslib include dir
+include_directories(${install_dir}/include)
+add_dependencies(hapog htslib)
 
+# Links
 target_link_libraries(hapog m)
-target_link_libraries(hapog htslib)
+target_link_libraries(hapog ${HTSLIB_PREFIX}/src/htslib/lib/libhts.so.1.9)
 target_link_libraries(hapog z)
 target_link_libraries(hapog lzma)
 target_link_libraries(hapog bz2)
