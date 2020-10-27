@@ -50,7 +50,7 @@ if __name__ == "__main__":
     misc.check_dependencies()
 
     args.input_genome = os.path.abspath(args.input_genome)
-    args.input_bam = os.path.abspath(args.input_bam)
+    args.output_dir = os.path.abspath(args.output_dir)
 
     pe1 = []
     for pe in args.pe1 :
@@ -65,6 +65,16 @@ if __name__ == "__main__":
         pass
     os.chdir(args.output_dir)
 
-    misc.create_genome_file(args.input_genome)
-    masking.mask_genome(args.input_bam, args.input_genome)	
-    mapping.launch_mapping(args.input_bam, pe1, pe2, args.threads)
+    try:
+      os.mkdir("bam")
+    except:
+      pass
+
+    try:
+      os.mkdir("logs")
+    except:
+      pass
+
+    #mapping.launch_mapping(args.input_genome, pe1, pe2, args.threads)
+    misc.create_chunks(args.input_genome, args.threads)
+    misc.extract_bam()
