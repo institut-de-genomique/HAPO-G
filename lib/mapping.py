@@ -36,7 +36,7 @@ def launch_mapping(genome, pe1, pe2, threads):
 	    stderr = open("logs/samtools_sort.e", "w"))
 
     ########## SAMTOOLS INDEX ##########
-    cmd = ["samtools", "index", "aln.sorted.bam"]
+    cmd = ["samtools", "index", "bam/aln.sorted.bam"]
     print(" ".join(cmd), flush=True)
     _ = subprocess.run(cmd, 
 	    stdout = open("logs/samtools_index.o", "w"), 
