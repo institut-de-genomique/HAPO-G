@@ -2,6 +2,7 @@ from Bio import SeqIO
 
 import glob
 import os
+import shutil
 import subprocess
 
 
@@ -41,7 +42,7 @@ def create_chunks(genome, threads):
     cumul_size = get_genome_size(genome)
 
     chunk_size = cumul_size / int(threads)
-    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases")
+    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (if scaffolds sizes permit it)")
     try:
         os.mkdir("chunks")
     except:
@@ -68,8 +69,8 @@ def create_chunks(genome, threads):
     current_bed_file.close()
 
 
-def extract_bam():
-    print("Extracting bam for each chunk")
+def extract_bam(processes):
+    print("\nExtracting bam for each chunk")
     try:
         os.mkdir("chunks_bam")
     except:
@@ -81,18 +82,69 @@ def extract_bam():
         bam = "chunks_bam/" + bed.split("/")[1].replace(".bed", ".bam")
 
         nb_beds += 1
-        cmds.append(["samtools", "view", "-b", "bam/aln.sorted.bam", "-L", bed])
+        cmds.append(["samtools", "view", "-ML", bed, "-b", "bam/aln.sorted.bam"])
 
-    for i in range(0, nb_beds, 5):
+    while len(cmds) > 0:
         procs = []
         
-        for j in range(0, min(5, nb_beds-i-5)):
-            cmd = cmds[i+j]
-            bam = "chunks_bam/" + cmd[5].split("/")[1].replace(".bed", ".bam")
+        for j in range(0, min(min(processes, 8), len(cmds))):
+            cmd = cmds.pop(0)
+            bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
             print(" ".join(cmd), flush=True)
             procs.append(subprocess.Popen(cmd,
                 stdout = open(bam, "w"),
-                stderr = open("logs/samtools_sort.e", "a")))
+                stderr = open("logs/samtools_split.e", "a")))
         
         for p in procs:
             p.wait()
+
+
+def launch_hapog():
+    print(f"\nLaunching HAPoG on each chunk")
+    try:
+        os.mkdir("HAPoG_chunks")
+    except:
+        pass
+
+    script_path = os.path.realpath(__file__).replace("/lib/misc.py", "")
+    procs = []
+    for chunk in glob.glob("chunks/*.fasta"):
+        chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
+        cmd = [
+            f"{script_path}/build/hapog", 
+            "-b", f"chunks_bam/{chunk_prefix}.bam", 
+            "-f", chunk, 
+            "-o", f"HAPoG_chunks/{chunk_prefix}.fasta",
+            "-c", f"HAPoG_chunks/{chunk_prefix}.changes"
+        ]
+        print(" ".join(cmd), flush=True)
+        procs.append(subprocess.Popen(cmd,
+            stdout = open(f"logs/hapog_{chunk_prefix}.o", "w"),
+            stderr = open(f"logs/hapog_{chunk_prefix}.e", "w")))
+      
+    for p in procs:
+        p.wait()
+
+
+def merge_results():
+    print("\nMerging results")
+    try:
+        os.mkdir("HAPoG_results")
+    except:
+        pass
+
+    with open("HAPoG_results/hapog.fasta", "wb") as out:
+        for f in glob.glob("HAPoG_chunks/*.fasta"):
+            with open(f,'rb') as fd:
+                shutil.copyfileobj(fd, out)
+                out.write(b"\n")
+
+    with open("HAPoG_results/hapog.changes", "wb") as out:
+        for f in glob.glob("HAPoG_chunks/*.changes"):
+            with open(f,'rb') as fd:
+                shutil.copyfileobj(fd, out)
+                out.write(b"\n")
+
+    print("Done.")
+    print("Results can be found in the HAPoG_results directory\n")
+    print("Thanks for using HAPoG, have a great day :-)")

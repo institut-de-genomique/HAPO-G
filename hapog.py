@@ -1,5 +1,5 @@
 from lib import mapping
-from lib import misc
+from lib import pipeline
 
 import argparse
 import os
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         required=False)
 
     args = parser.parse_args()
-    misc.check_dependencies()
+    pipeline.check_dependencies()
 
     args.input_genome = os.path.abspath(args.input_genome)
     args.output_dir = os.path.abspath(args.output_dir)
@@ -75,6 +75,8 @@ if __name__ == "__main__":
     except:
       pass
 
-    #mapping.launch_mapping(args.input_genome, pe1, pe2, args.threads)
-    misc.create_chunks(args.input_genome, args.threads)
-    misc.extract_bam()
+    mapping.launch_mapping(args.input_genome, pe1, pe2, args.threads)
+    pipeline.create_chunks(args.input_genome, args.threads)
+    pipeline.extract_bam(int(args.threads))
+    pipeline.launch_hapog()
+    pipeline.merge_results()
