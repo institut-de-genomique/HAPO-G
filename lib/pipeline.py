@@ -106,7 +106,7 @@ def launch_hapog():
     except:
         pass
 
-    script_path = os.path.realpath(__file__).replace("/lib/misc.py", "")
+    script_path = os.path.realpath(__file__).replace("/lib/pipeline.py", "")
     procs = []
     for chunk in glob.glob("chunks/*.fasta"):
         chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
