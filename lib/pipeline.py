@@ -111,7 +111,7 @@ def launch_hapog():
     for chunk in glob.glob("chunks/*.fasta"):
         chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
         cmd = [
-            f"{script_path}/build/hapog", 
+            f"{script_path}/bin/hapog", 
             "-b", f"chunks_bam/{chunk_prefix}.bam", 
             "-f", chunk, 
             "-o", f"HAPoG_chunks/{chunk_prefix}.fasta",
