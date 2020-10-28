@@ -50,8 +50,8 @@ def create_chunks(genome, threads):
 
     current_chunk = 1
     current_chunk_size = 0
-    current_chunk_file = open("chunks/chunk_1.fasta", "w")
-    current_bed_file = open("chunks/chunk_1.bed", "w")
+    current_chunk_file = open("chunks/chunks_1.fasta", "w")
+    current_bed_file = open("chunks/chunks_1.bed", "w")
 
     for record in SeqIO.parse(open(genome), "fasta"):
         if current_chunk_size >= chunk_size and current_chunk != threads:
@@ -111,7 +111,7 @@ def launch_hapog():
     for chunk in glob.glob("chunks/*.fasta"):
         chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
         cmd = [
-            f"{script_path}/build/hapog", 
+            f"{script_path}/bin/hapog", 
             "-b", f"chunks_bam/{chunk_prefix}.bam", 
             "-f", chunk, 
             "-o", f"HAPoG_chunks/{chunk_prefix}.fasta",
