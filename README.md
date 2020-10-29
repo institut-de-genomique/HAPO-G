@@ -31,3 +31,23 @@ bash install.sh
 ```
 
 If everything went as expected, a binary of HAPoG was created in `build/` and a symlink was created in the `bin/` folder
+
+
+## Using HAPoG
+Before running HAPoG, you should make sure that BWA and Samtools are in you `$PATH`:
+```
+which bwa
+which samtools
+```
+
+Then, you can launch HAPoG by using the Python3 script in its root directory:
+```
+python3 HAPOG_ROOT/hapog.py \
+  --genome assembly.fasta \   # Fasta file of the genome to polish
+  --pe1 R1.fastq.gz \         # Illumina R1 reads in .fastq or .fastq.gz, can be given multiple times
+  --pe2 R2.fastq.gz \         # Illumina R2 reads in .fastq or .fastq.gz, can be given multiple times
+  -o polishing \              # Output directory
+  -t 36                       # Number of threads to use
+```
+
+
