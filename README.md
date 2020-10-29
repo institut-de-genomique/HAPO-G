@@ -27,7 +27,7 @@ git clone https://github.com/institut-de-genomique/HAPoG
 Go into the created directory and run the build script:
 ```
 cd HAPoG
-bash install.sh
+bash build.sh
 ```
 
 If everything went as expected, a binary of HAPoG was created in `build/` and a symlink was created in the `bin/` folder
