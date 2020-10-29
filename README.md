@@ -34,7 +34,7 @@ If everything went as expected, a binary of HAPoG was created in `build/` and a 
 
 
 ## Using HAPoG
-Before running HAPoG, you should make sure that BWA and Samtools are in you `$PATH`:
+Before running HAPoG, you should make sure that BWA and Samtools are in your `$PATH`:
 ```
 which bwa
 which samtools
