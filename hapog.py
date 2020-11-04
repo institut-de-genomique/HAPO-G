@@ -76,8 +76,10 @@ if __name__ == "__main__":
     except:
       pass
 
-    mapping.launch_mapping(args.input_genome, pe1, pe2, args.threads)
-    pipeline.create_chunks(args.input_genome, args.threads)
+    pipeline.rename_assembly(args.input_genome)
+    mapping.launch_mapping("assembly.fasta", pe1, pe2, args.threads)
+    pipeline.create_chunks("assembly.fasta", args.threads)
     pipeline.extract_bam(int(args.threads))
     pipeline.launch_hapog()
     pipeline.merge_results()
+    pipeline.rename_results()

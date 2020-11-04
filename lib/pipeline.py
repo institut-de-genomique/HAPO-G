@@ -38,6 +38,20 @@ def get_genome_size(genome):
     return(cumul_size)
 
 
+def rename_assembly(genome):
+    correspondance_file = open("correspondance.txt", "w")
+    with open("assembly.fasta", "w") as out:
+        counter = 0
+        for line in open(genome):
+            if line.startswith(">"):
+                out.write(f">Contig_{counter}\n")
+                correspondance_file.write(f"Contig_{counter}\t{line[1:]}")
+                counter += 1
+            else:
+                out.write(line)
+    correspondance_file.close()
+
+
 def create_chunks(genome, threads):
     cumul_size = get_genome_size(genome)
 
@@ -133,17 +147,45 @@ def merge_results():
     except:
         pass
 
-    with open("HAPoG_results/hapog.fasta", "wb") as out:
+    with open("HAPoG_results/hapog.fasta.tmp", "wb") as out:
         for f in glob.glob("HAPoG_chunks/*.fasta"):
             with open(f,'rb') as fd:
                 shutil.copyfileobj(fd, out)
                 out.write(b"\n")
 
-    with open("HAPoG_results/hapog.changes", "wb") as out:
+    with open("HAPoG_results/hapog.changes.tmp", "wb") as out:
         for f in glob.glob("HAPoG_chunks/*.changes"):
             with open(f,'rb') as fd:
                 shutil.copyfileobj(fd, out)
                 out.write(b"\n")
+
+def rename_results():
+    correspondance_file = open("correspondance.txt")
+    dict_correspondance = {}
+    for line in correspondance_file:
+        new, original = line.strip("\n").split("\t")
+        dict_correspondance[new] = original
+    correspondance_file.close() 
+
+    with open("HAPoG_results/hapog.fasta", "w") as out:
+        for record in SeqIO.parse(open("HAPoG_results/hapog.fasta.tmp"), "fasta"):
+            out.write(f">{dict_correspondance[str(record.id).replace('_polished', '')]}\n{record.seq}\n")
+
+    with open("HAPoG_results/hapog.changes", "w") as out:
+        for line in open("HAPoG_results/hapog.changes.tmp"):
+            line = line.strip("\n").split("\t")
+            try:
+                line[0] = dict_correspondance[line[0]]
+            except:
+                continue
+            line = "\t".join(line)
+            out.write(f"{line}\n")
+    
+    for f in glob.glob("assembly.fasta*"):
+        os.remove(f)
+    os.remove("correspondance.txt")
+    os.remove("HAPoG_results/hapog.fasta.tmp")
+    os.remove("HAPoG_results/hapog.changes.tmp")
 
     print("Done.")
     print("Results can be found in the HAPoG_results directory\n")
