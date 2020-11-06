@@ -4,11 +4,12 @@ import glob
 import os
 import shutil
 import subprocess
+import time
 
 
 def check_dependencies():
     missing_dependency = False
-    print("Checking dependencies...", flush=True)
+    print("\nChecking dependencies...", flush=True)
     FNULL = open(os.devnull, 'w')
 
     #Looking for BWA
@@ -56,7 +57,7 @@ def create_chunks(genome, threads):
     cumul_size = get_genome_size(genome)
 
     chunk_size = cumul_size / int(threads)
-    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (if scaffolds sizes permit it)")
+    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (if scaffolds sizes permit it)", flush=True)
     try:
         os.mkdir("chunks")
     except:
@@ -67,6 +68,7 @@ def create_chunks(genome, threads):
     current_chunk_file = open("chunks/chunks_1.fasta", "w")
     current_bed_file = open("chunks/chunks_1.bed", "w")
 
+    start = time.perf_counter()
     for record in SeqIO.parse(open(genome), "fasta"):
         if current_chunk_size >= chunk_size and current_chunk != threads:
             current_chunk_file.close()
@@ -78,17 +80,20 @@ def create_chunks(genome, threads):
         current_chunk_file.write(record.format("fasta"))
         current_bed_file.write(f"{record.id}\t0\t{len(record.seq)}\n")
         current_chunk_size += len(record.seq)
- 
+    print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
+
     current_chunk_file.close()
     current_bed_file.close()
 
 
 def extract_bam(processes):
-    print("\nExtracting bam for each chunk")
+    print("\nExtracting bam for each chunk", flush=True)
     try:
         os.mkdir("chunks_bam")
     except:
         pass
+
+    start = time.perf_counter()
 
     cmds = []
     nb_beds = 0
@@ -104,7 +109,7 @@ def extract_bam(processes):
         for j in range(0, min(min(processes, 8), len(cmds))):
             cmd = cmds.pop(0)
             bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
-            print(" ".join(cmd), flush=True)
+            print(" ".join(cmd), flush=True, file=open("cmds/extract_bam.cmds", "a"))
             procs.append(subprocess.Popen(cmd,
                 stdout = open(bam, "w"),
                 stderr = open("logs/samtools_split.e", "a")))
@@ -112,13 +117,17 @@ def extract_bam(processes):
         for p in procs:
             p.wait()
 
+    print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
+
 
 def launch_hapog():
-    print(f"\nLaunching HAPoG on each chunk")
+    print(f"\nLaunching HAPoG on each chunk", flush=True)
     try:
         os.mkdir("HAPoG_chunks")
     except:
         pass
+
+    start = time.perf_counter()
 
     script_path = os.path.realpath(__file__).replace("/lib/pipeline.py", "")
     procs = []
@@ -131,7 +140,7 @@ def launch_hapog():
             "-o", f"HAPoG_chunks/{chunk_prefix}.fasta",
             "-c", f"HAPoG_chunks/{chunk_prefix}.changes"
         ]
-        print(" ".join(cmd), flush=True)
+        print(" ".join(cmd), flush=True, file=open("cmds/hapog.cmds", "a"))
         procs.append(subprocess.Popen(cmd,
             stdout = open(f"logs/hapog_{chunk_prefix}.o", "w"),
             stderr = open(f"logs/hapog_{chunk_prefix}.e", "w")))
@@ -139,13 +148,17 @@ def launch_hapog():
     for p in procs:
         p.wait()
 
+    print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
+
 
 def merge_results():
-    print("\nMerging results")
+    print("\nMerging results", flush=True)
     try:
         os.mkdir("HAPoG_results")
     except:
         pass
+
+    start = time.perf_counter()
 
     with open("HAPoG_results/hapog.fasta.tmp", "wb") as out:
         for f in glob.glob("HAPoG_chunks/*.fasta"):
@@ -158,6 +171,9 @@ def merge_results():
             with open(f,'rb') as fd:
                 shutil.copyfileobj(fd, out)
                 out.write(b"\n")
+
+    print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
+
 
 def rename_results():
     correspondance_file = open("correspondance.txt")
@@ -186,7 +202,3 @@ def rename_results():
     os.remove("correspondance.txt")
     os.remove("HAPoG_results/hapog.fasta.tmp")
     os.remove("HAPoG_results/hapog.changes.tmp")
-
-    print("Done.")
-    print("Results can be found in the HAPoG_results directory\n")
-    print("Thanks for using HAPoG, have a great day :-)")

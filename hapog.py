@@ -5,6 +5,7 @@ from lib import pipeline
 import argparse
 import os
 import sys
+import time
 
 
 if __name__ == "__main__":
@@ -63,18 +64,15 @@ if __name__ == "__main__":
     try:
         os.mkdir(args.output_dir)
     except:
-        pass
+        print(f"\nOutput directory {args.output_dir} can't be created, please erase it before launching HAPoG!\n")
+        sys.exit(1)
     os.chdir(args.output_dir)
 
-    try:
-      os.mkdir("bam")
-    except:
-      pass
+    os.mkdir("bam")
+    os.mkdir("logs")
+    os.mkdir("cmds")
 
-    try:
-      os.mkdir("logs")
-    except:
-      pass
+    global_start = time.perf_counter()
 
     pipeline.rename_assembly(args.input_genome)
     mapping.launch_mapping("assembly.fasta", pe1, pe2, args.threads)
@@ -83,3 +81,7 @@ if __name__ == "__main__":
     pipeline.launch_hapog()
     pipeline.merge_results()
     pipeline.rename_results()
+
+    print(f"\nTotal running time: {int(time.perf_counter() - global_start)} seconds")
+    print("Results can be found in the HAPoG_results directory\n")
+    print("Thanks for using HAPoG, have a great day :-)\n")     
