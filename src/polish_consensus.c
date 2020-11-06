@@ -138,7 +138,7 @@ int parse_bam(char* bam, char* fa, char* outfa, char *changefile, int silent) {
     current_position = aln->core.pos;
     if(tot_read%10000 == 0 && !silent) print_step(current_position, ap->len_seq);
     
-    //if(!strcmp(header->target_name[aln->core.tid], "ctg5") && current_position > 854000 && current_position < 855000) ap->debug = 1;
+    //if(!strcmp(header->target_name[aln->core.tid], "HS_assemblymutate") && current_position > 96300 && current_position < 96400) ap->debug = 1;
     //else ap->debug = 0;
     //ap->debug = 1;
     int i;
