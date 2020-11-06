@@ -297,11 +297,34 @@ void select_base(alipile_t *ap, alipile_t *allali, int current_pos,
 
   // coverage is too low, keep reference sequence
   if(ap->nb_ali < ap->min_cov) {
-    if(ap->debug) 
-      printf("==> seq=%s pos=%i base_ref=%s nbali=%i [COV TOO LOW]\n", 
-	     ap->name_seq, current_pos, ref, ap->nb_ali);
-    add_str(s, ref);
-    ret = 1;
+    // coverage is too low in both pile, keep reference sequence
+    if(ap->nb_ali == 0 || allali->nb_ali < ap->min_cov) {
+      if(ap->debug) 
+	printf("==> seq=%s pos=%i base_ref=%s nbali=%i [COV TOO LOW]\n", 
+	       ap->name_seq, current_pos, ref, ap->nb_ali);
+      add_str(s, ref);
+      ret = 1;
+    } else {
+      read = get_base(ap, ap->current_read, current_pos);
+      float ratio = get_ratio_base(ap, read, current_pos);
+      float ratioall = get_ratio_base(allali, read, current_pos);
+      if(ratioall >= 0.8) {
+	if(strcmp(read, "-") != 0) add_str(s, read);
+	if(strcmp(ref, read) != 0) {
+	  fprintf(ap->changes, "%s\t%i\tref=%s\tread=%s\treadname=%s\thomo\tratio1=%.4f\tratio2=%.4fn",
+		  ap->name_seq, current_pos, ref, read,
+		  bam_get_qname(ap->pile[ap->current_read]), ratio, ratioall);
+	  
+	  ap->nb_changes++;
+	  if(ap->debug)
+	    printf("%s\t%i\tref=%s\tread=%s\treadname=%s\thomo-lowcov\tratio1=%.4f\tratio2=%.4f\n",
+		   ap->name_seq, current_pos, ref, read,
+		   bam_get_qname(ap->pile[ap->current_read]), ratio, ratioall);
+	}
+	ret = 1;
+      }
+      
+    }
   }
   
   if(!ret) {
