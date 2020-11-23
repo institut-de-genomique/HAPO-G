@@ -18,12 +18,15 @@ def launch_mapping(genome, pe1, pe2, threads):
     ########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
     cmd = "bash -c 'bwa mem -t %s %s " % (threads, genome)
+    
+    streamer = "cat"
+    if pe1[0].endswith(".gz"): streamer = "zcat"
 
-    cmd += "<(zcat"
+    cmd += f"<({streamer}"
     for pe in pe1:
         cmd += " %s" % pe
     cmd += ") "
-    cmd += "<(zcat"
+    cmd += f"<({streamer}"
     for pe in pe2:
         cmd += " %s" % pe
     cmd += ")"
