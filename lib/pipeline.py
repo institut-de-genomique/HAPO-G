@@ -32,6 +32,14 @@ def check_dependencies():
     	exit(-1)
 
 
+def check_fasta_headers(genome):
+    for line in open(genome):
+        if line.startswith(">"):
+            if not line[1:].rstrip("\n").isalnum():
+                return True
+    return False
+
+
 def get_genome_size(genome):
     cumul_size = 0
     for record in SeqIO.parse(open(genome), "fasta"):
@@ -45,7 +53,7 @@ def rename_assembly(genome):
         counter = 0
         for line in open(genome):
             if line.startswith(">"):
-                out.write(f">Contig_{counter}\n")
+                out.write(f">Contig{counter}\n")
                 correspondance_file.write(f"Contig_{counter}\t{line[1:]}")
                 counter += 1
             else:
@@ -199,6 +207,5 @@ def rename_results():
     
     for f in glob.glob("assembly.fasta*"):
         os.remove(f)
-    os.remove("correspondance.txt")
     os.remove("HAPoG_results/hapog.fasta.tmp")
     os.remove("HAPoG_results/hapog.changes.tmp")

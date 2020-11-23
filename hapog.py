@@ -74,13 +74,30 @@ if __name__ == "__main__":
 
     global_start = time.perf_counter()
 
-    pipeline.rename_assembly(args.input_genome)
+    non_alphanumeric_chars = pipeline.check_fasta_headers(args.input_genome)
+    if non_alphanumeric_chars:
+        print("\nNon alphanumeric characters detected in fasta headers. Renaming sequences.", flush=True)
+        pipeline.rename_assembly(args.input_genome)
+    else:
+        os.system(f"ln -s {args.input_genome} assembly.fasta")
+
     mapping.launch_mapping("assembly.fasta", pe1, pe2, args.threads)
-    pipeline.create_chunks("assembly.fasta", args.threads)
-    pipeline.extract_bam(int(args.threads))
+
+    if int(args.threads) > 1:
+        pipeline.create_chunks("assembly.fasta", args.threads)
+        pipeline.extract_bam(int(args.threads))
+    else:
+        os.system(f"ln -s {args.input_genome} chunks/assembly.fasta")
+        os.system(f"ln -s bam/aln.sorted.bam chunks_bam/assembly.bam")
+
     pipeline.launch_hapog()
     pipeline.merge_results()
-    pipeline.rename_results()
+        
+    if non_alphanumeric_chars:
+        pipeline.rename_results()
+    else:
+        os.system("mv hapog.changes.tmp hapog.changes")
+        os.system("mv hapog.fasta.tmp hapog.fasta")
 
     print(f"\nTotal running time: {int(time.perf_counter() - global_start)} seconds")
     print("Results can be found in the HAPoG_results directory\n")
