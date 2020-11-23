@@ -106,7 +106,7 @@ def extract_bam(processes):
     while len(cmds) > 0:
         procs = []
         
-        for j in range(0, min(min(processes, 8), len(cmds))):
+        for j in range(0, len(cmds)):
             cmd = cmds.pop(0)
             bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
             print(" ".join(cmd), flush=True, file=open("cmds/extract_bam.cmds", "a"))
