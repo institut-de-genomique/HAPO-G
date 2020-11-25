@@ -150,7 +150,7 @@ def launch_hapog():
         ]
         print(" ".join(cmd), flush=True, file=open("cmds/hapog.cmds", "a"))
         procs.append(subprocess.Popen(cmd,
-            stdout = subprocess.PIPE,
+            stdout = open(f"logs/hapog_{chunk_prefix}.o", "w"),
             stderr = open(f"logs/hapog_{chunk_prefix}.e", "w")))
       
     for p in procs:

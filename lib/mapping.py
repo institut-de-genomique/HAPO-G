@@ -30,15 +30,19 @@ def launch_mapping(genome, pe1, pe2, threads):
     streamer = "cat"
     if pe1[0].endswith(".gz"): streamer = "zcat"
 
-    cmd += f"<({streamer}"
-    for pe in pe1:
-        cmd += " %s" % pe
-    cmd += ") "
-    cmd += f"<({streamer}"
-    for pe in pe2:
-        cmd += " %s" % pe
-    cmd += ") 2> logs/bwa_mem.e"
-    cmd += f" | samtools sort -m 10G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
+    if len(pe1) > 1:
+        cmd += f"<({streamer}"
+        for pe in pe1:
+            cmd += " %s" % pe
+        cmd += ") "
+        cmd += f"<({streamer}"
+        for pe in pe2:
+            cmd += " %s" % pe
+        cmd += ") 2> logs/bwa_mem.e"
+    else:
+        cmd += pe1[0] + " " + pe2[0] + " 2> logs/bwa_mem.e"
+    
+    cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
     print(cmd, flush=True, file=open("cmds/mapping.cmds", "w"))
