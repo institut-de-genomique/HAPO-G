@@ -108,6 +108,6 @@ if __name__ == "__main__":
     if args.include_unpolished:
         pipeline.include_unpolished(args.input_genome)
 
-    print("Results can be found in the HAPoG_results directory\n")
-    print(f"\nTotal running time: {int(time.perf_counter() - global_start)} seconds")
+    print("\nResults can be found in the HAPoG_results directory")
+    print(f"Total running time: {int(time.perf_counter() - global_start)} seconds")
     print("\nThanks for using HAPoG, have a great day :-)\n")     
