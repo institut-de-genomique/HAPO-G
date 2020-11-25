@@ -35,6 +35,12 @@ if __name__ == "__main__":
         required=True)
 
     optional_args = parser.add_argument_group("Optional arguments")
+    optional_args.add_argument("-u",  
+        action="store_true", 
+        dest="include_unpolished", 
+        help="Include unpolished sequences in final output",
+        default=False,
+        required=False)
     optional_args.add_argument("--output", "-o",  
         action="store", 
         dest="output_dir", 
@@ -87,18 +93,21 @@ if __name__ == "__main__":
         pipeline.create_chunks("assembly.fasta", args.threads)
         pipeline.extract_bam(int(args.threads))
     else:
-        os.system(f"ln -s {args.input_genome} chunks/assembly.fasta")
-        os.system(f"ln -s bam/aln.sorted.bam chunks_bam/assembly.bam")
+        os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
+        os.system(f"ln -s bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
     pipeline.launch_hapog()
-    pipeline.merge_results()
+    pipeline.merge_results(int(args.threads))
         
     if non_alphanumeric_chars:
         pipeline.rename_results()
     else:
-        os.system("mv hapog.changes.tmp hapog.changes")
-        os.system("mv hapog.fasta.tmp hapog.fasta")
+        os.system("mv HAPoG_results/hapog.changes.tmp HAPoG_results/hapog.changes")
+        os.system("mv HAPoG_results/hapog.fasta.tmp HAPoG_results/hapog.fasta")
 
-    print(f"\nTotal running time: {int(time.perf_counter() - global_start)} seconds")
+    if args.include_unpolished:
+        pipeline.include_unpolished(args.input_genome)
+
     print("Results can be found in the HAPoG_results directory\n")
-    print("Thanks for using HAPoG, have a great day :-)\n")     
+    print(f"\nTotal running time: {int(time.perf_counter() - global_start)} seconds")
+    print("\nThanks for using HAPoG, have a great day :-)\n")     

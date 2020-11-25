@@ -54,7 +54,7 @@ def rename_assembly(genome):
         for line in open(genome):
             if line.startswith(">"):
                 out.write(f">Contig{counter}\n")
-                correspondance_file.write(f"Contig_{counter}\t{line[1:]}")
+                correspondance_file.write(f"Contig{counter}\t{line[1:]}")
                 counter += 1
             else:
                 out.write(line)
@@ -106,24 +106,24 @@ def extract_bam(processes):
     cmds = []
     nb_beds = 0
     for bed in glob.glob("chunks/*.bed"):
-        bam = "chunks_bam/" + bed.split("/")[1].replace(".bed", ".bam")
-
         nb_beds += 1
         cmds.append(["samtools", "view", "-ML", bed, "-b", "bam/aln.sorted.bam"])
 
-    while len(cmds) > 0:
-        procs = []
-        
-        for j in range(0, len(cmds)):
-            cmd = cmds.pop(0)
-            bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
-            print(" ".join(cmd), flush=True, file=open("cmds/extract_bam.cmds", "a"))
-            procs.append(subprocess.Popen(cmd,
-                stdout = open(bam, "w"),
-                stderr = open("logs/samtools_split.e", "a")))
-        
-        for p in procs:
-            p.wait()
+    procs = []
+    for j in range(0, len(cmds)):
+        cmd = cmds.pop(0)
+        bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
+        print(" ".join(cmd), flush=True, file=open("cmds/extract_bam.cmds", "a"))
+        procs.append(subprocess.Popen(cmd,
+            stdout = open(bam, "w"),
+            stderr = open("logs/samtools_split.e", "a")))
+    
+    for p in procs:
+        p.wait()
+        if p.returncode != 0:
+            print(f"ERROR: Samtools view didn't finish correctly, return code: {p.returncode}")
+            print("Faulty command: {p.args}")
+            exit(1)
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
@@ -150,16 +150,21 @@ def launch_hapog():
         ]
         print(" ".join(cmd), flush=True, file=open("cmds/hapog.cmds", "a"))
         procs.append(subprocess.Popen(cmd,
-            stdout = open(f"logs/hapog_{chunk_prefix}.o", "w"),
+            stdout = subprocess.PIPE,
             stderr = open(f"logs/hapog_{chunk_prefix}.e", "w")))
       
     for p in procs:
         p.wait()
+        return_code = p.returncode
+        if return_code != 0:
+            print(f"ERROR: HAPoG didn't finish successfully, exit code: {return_code}")
+            print("Faulty command: %s" % (" ".join(p.args)))
+            exit(1)
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
 
-def merge_results():
+def merge_results(threads):
     print("\nMerging results", flush=True)
     try:
         os.mkdir("HAPoG_results")
@@ -169,16 +174,20 @@ def merge_results():
     start = time.perf_counter()
 
     with open("HAPoG_results/hapog.fasta.tmp", "wb") as out:
-        for f in glob.glob("HAPoG_chunks/*.fasta"):
-            with open(f,'rb') as fd:
-                shutil.copyfileobj(fd, out)
-                out.write(b"\n")
+        for i in range(1, threads+1):
+            f = f"HAPoG_chunks/chunks_{i}.fasta"
+            if os.path.exists(f):
+                with open(f,'rb') as fd:
+                    shutil.copyfileobj(fd, out)
+                    out.write(b"\n")
 
     with open("HAPoG_results/hapog.changes.tmp", "wb") as out:
-        for f in glob.glob("HAPoG_chunks/*.changes"):
-            with open(f,'rb') as fd:
-                shutil.copyfileobj(fd, out)
-                out.write(b"\n")
+        for i in range(1, threads+1):
+            f = f"HAPoG_chunks/chunks_{i}.changes"
+            if os.path.exists(f):
+                with open(f,'rb') as fd:
+                    shutil.copyfileobj(fd, out)
+                    out.write(b"\n")
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
@@ -209,3 +218,31 @@ def rename_results():
         os.remove(f)
     os.remove("HAPoG_results/hapog.fasta.tmp")
     os.remove("HAPoG_results/hapog.changes.tmp")
+
+
+def include_unpolished(genome):
+    print("\nWriting unpolished contigs to final output...")
+    start = time.perf_counter()
+
+    initial_contig_names = set()
+    if os.path.exists("correspondance.txt"):
+        for line in open("correspondance.txt"):
+            _, initial = line.strip("\n").split("\t")
+            initial_contig_names.add(initial)
+    else:
+        for line in open(genome):
+            if line.startswith(">"):
+                initial_contig_names.add(line[1:].strip("\n"))
+
+    polished_contig_names = set()
+    for line in open("HAPoG_results/hapog.fasta"):
+        if line.startswith(">"):
+            contig_name = line[1:].strip("\n").replace("_polished", "")
+            polished_contig_names.add(contig_name)
+
+    with open("HAPoG_results/hapog.fasta", "a") as out:
+        for record in SeqIO.parse(open(genome), "fasta"):
+            if record.description not in polished_contig_names:
+                out.write(record.format("fasta"))
+
+    print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
