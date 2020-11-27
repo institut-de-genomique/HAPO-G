@@ -33,10 +33,13 @@ def check_dependencies():
 
 
 def check_fasta_headers(genome):
+    authorized_chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
     for line in open(genome):
         if line.startswith(">"):
-            if not line[1:].rstrip("\n").isalnum():
-                return True
+            header = line[1:].rstrip("\n")
+            for char in header:
+                if char not in authorized_chars:
+                    return True
     return False
 
 
