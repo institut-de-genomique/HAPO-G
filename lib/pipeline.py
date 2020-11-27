@@ -131,7 +131,7 @@ def extract_bam(processes):
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
 
-def launch_hapog():
+def launch_hapog(hapog_bin):
     print(f"\nLaunching HAPoG on each chunk", flush=True)
     try:
         os.mkdir("HAPoG_chunks")
@@ -141,11 +141,16 @@ def launch_hapog():
     start = time.perf_counter()
 
     script_path = os.path.realpath(__file__).replace("/lib/pipeline.py", "")
+    if not hapog_bin:
+        hapog_bin = f"{script_path}/bin/hapog"
+    else:
+        print(f"Using this bin: {hapog_bin}" )
+
     procs = []
     for chunk in glob.glob("chunks/*.fasta"):
         chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
         cmd = [
-            f"{script_path}/bin/hapog", 
+            hapog_bin, 
             "-b", f"chunks_bam/{chunk_prefix}.bam", 
             "-f", chunk, 
             "-o", f"HAPoG_chunks/{chunk_prefix}.fasta",

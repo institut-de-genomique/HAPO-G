@@ -53,6 +53,12 @@ if __name__ == "__main__":
         help="Number of threads (used in BWA, Samtools and HAPoG)",
         default="8",
         required=False)
+    optional_args.add_argument("--bin",  
+        action="store", 
+        dest="hapog_bin", 
+        help="Use a different HAPoG binary (for debug purposes)",
+        default=None,
+        required=False)
 
     args = parser.parse_args()
     pipeline.check_dependencies()
@@ -96,7 +102,7 @@ if __name__ == "__main__":
         os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
         os.system(f"ln -s bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
-    pipeline.launch_hapog()
+    pipeline.launch_hapog(args.hapog_bin)
     pipeline.merge_results(int(args.threads))
         
     if non_alphanumeric_chars:
