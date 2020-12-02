@@ -21,12 +21,12 @@ HAPO-G depends on some software and libraries:
 ## Installation
 First, clone this repository:
 ```
-git clone https://github.com/institut-de-genomique/HAPoG
+git clone https://github.com/institut-de-genomique/HAPO-G hapog
 ```
 
 Go into the created directory and run the build script:
 ```
-cd HAPoG
+cd hapog
 bash build.sh
 ```
 
@@ -34,7 +34,7 @@ If everything went as expected, a binary of HAPoG was created in `build/` and a 
 
 
 ## Using HAPO-G
-Before running HAPoG, you should make sure that BWA and Samtools are in your `$PATH`:
+Before running HAPO-G, you should make sure that BWA and Samtools are in your `$PATH`:
 ```
 which bwa
 which samtools
