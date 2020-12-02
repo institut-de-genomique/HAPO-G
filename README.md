@@ -1,15 +1,15 @@
-# HAPoG - Haplotype-Aware Polishing of Genomes
+# HAPO-G - Haplotype-Aware Polishing of Genomes
 
-HAPoG (pronounced like apogee) is a tool that aims to improve the quality of genome assemblies by polishing the consensus with accurate reads.
+HAPO-G (pronounced like apogee) is a tool that aims to improve the quality of genome assemblies by polishing the consensus with accurate reads.
 
-Biorxiv preprint : [link](https://www.biorxiv.org/ "BiSCoT Biorxiv preprint")
+Biorxiv preprint : [link](https://www.biorxiv.org/ "HAPO-G Biorxiv preprint")
 
 In case of troubles when using or installing the software, please open up an issue by clicking [here](https://github.com/institut-de-genomique/HAPoG/issues/new "Github issue page").
 
 
 ## Dependencies
 
-HAPoG depends on some software and libraries:
+HAPO-G depends on some software and libraries:
 - GCC and G++ (HAPoG has been tested with GCC 4.9.2 and GCC 7.3.0)
 - Python3 (minimum version 3.6)
 - [HTSlib](https://github.com/samtools/htslib "HTSlib github") (Automatically downloaded and built with HAPoG)
@@ -33,14 +33,14 @@ bash build.sh
 If everything went as expected, a binary of HAPoG was created in `build/` and a symlink was created in the `bin/` folder
 
 
-## Using HAPoG
+## Using HAPO-G
 Before running HAPoG, you should make sure that BWA and Samtools are in your `$PATH`:
 ```
 which bwa
 which samtools
 ```
 
-Then, you can launch HAPoG by using the Python3 script in its root directory:
+Then, you can launch HAPO-G by using the Python3 script in its root directory:
 ```
 python3 HAPOG_ROOT/hapog.py \
   --genome assembly.fasta \   # Fasta file of the genome to polish
