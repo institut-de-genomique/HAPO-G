@@ -250,7 +250,7 @@ def include_unpolished(genome):
 
     with open("HAPoG_results/hapog.fasta", "a") as out:
         for record in SeqIO.parse(open(genome), "fasta"):
-            if record.description not in polished_contig_names:
+            if record.description.replace("_polished", "") not in polished_contig_names:
                 out.write(record.format("fasta"))
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
