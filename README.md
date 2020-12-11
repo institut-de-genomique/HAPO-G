@@ -12,7 +12,7 @@ In case of troubles when using or installing the software, please open up an iss
 Hapo-G depends on some software and libraries:
 - GCC and G++ (Hapo-G has been tested with GCC 4.9.2 and GCC 7.3.0)
 - Python3 (minimum version 3.6)
-- [HTSlib](https://github.com/samtools/htslib "HTSlib github") (Automatically downloaded and built with HAPoG)
+- [HTSlib](https://github.com/samtools/htslib "HTSlib github") (Automatically downloaded and built with Hapo-G)
 - [BioPython](https://biopython.org/wiki/Download "BioPython")
 - [BWA](https://github.com/lh3/bwa "BWA")
 - [Samtools](https://github.com/samtools/samtools "Samtools")
