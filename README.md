@@ -2,7 +2,7 @@
 
 Hapo-G (pronounced like apogee) is a tool that aims to improve the quality of genome assemblies by polishing the consensus with accurate reads.
 
-Biorxiv preprint : [link](https://www.biorxiv.org/ "Hapo-G Biorxiv preprint")
+Biorxiv preprint : [link](https://www.biorxiv.org/content/10.1101/2020.12.14.422624v1 "Hapo-G Biorxiv preprint")
 
 In case of troubles when using or installing the software, please open up an issue by clicking [here](https://github.com/institut-de-genomique/Hapo-G/issues/new "Github issue page").
 
