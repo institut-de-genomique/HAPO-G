@@ -68,7 +68,7 @@ def create_chunks(genome, threads):
     cumul_size = get_genome_size(genome)
 
     chunk_size = cumul_size / int(threads)
-    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (if scaffolds sizes permit it)", flush=True)
+    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (depending of scaffold sizes)", flush=True)
     try:
         os.mkdir("chunks")
     except:

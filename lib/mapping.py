@@ -55,6 +55,11 @@ def launch_mapping(genome, pe1, pe2, threads):
         print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
     ########## SAMTOOLS INDEX ##########
+    index_bam()
+
+
+
+def index_bam():
     print("\nIndexing the BAM file...", flush=True)
     cmd = ["samtools", "index", "bam/aln.sorted.bam"]
 

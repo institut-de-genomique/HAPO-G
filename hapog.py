@@ -26,15 +26,21 @@ if __name__ == "__main__":
         dest="pe1", 
         help="Fastq.gz paired-end file (pair 1, can be given multiple times)",
         default=None,
-        required=True)
+        required=False)
     mandatory_args.add_argument("--pe2", 
         action="append", 
         dest="pe2", 
         help="Fastq.gz paired-end file (pair 2, can be given multiple times)",
         default=None,
-        required=True)
+        required=False)
 
     optional_args = parser.add_argument_group("Optional arguments")
+    optional_args.add_argument("-b",  
+        action="store", 
+        dest="bam_file", 
+        help="Skip mapping step and provide a sorted bam file",
+        default="",
+        required=False)
     optional_args.add_argument("-u",  
         action="store_true", 
         dest="include_unpolished", 
@@ -67,16 +73,23 @@ if __name__ == "__main__":
     args.output_dir = os.path.abspath(args.output_dir)
 
     pe1 = []
-    for pe in args.pe1 :
-        pe1.append(os.path.abspath(pe))
     pe2 = []
-    for pe in args.pe2 :
-        pe2.append(os.path.abspath(pe))  
+    if args.bam_file:
+        args.bam_file = os.path.abspath(args.bam_file)
+    else:
+        if not args.pe1 or not args.pe2:
+            print("You need to specify the paths to paired-end read files.")
+            sys.exit(-1)
+
+        for pe in args.pe1 :
+            pe1.append(os.path.abspath(pe))
+        for pe in args.pe2 :
+            pe2.append(os.path.abspath(pe))  
 
     try:
         os.mkdir(args.output_dir)
     except:
-        print(f"\nOutput directory {args.output_dir} can't be created, please erase it before launching HAPoG!\n")
+        print(f"\nOutput directory {args.output_dir} can't be created, please erase it before launching HAPoG.\n")
         sys.exit(1)
     os.chdir(args.output_dir)
 
@@ -86,14 +99,24 @@ if __name__ == "__main__":
 
     global_start = time.perf_counter()
 
-    non_alphanumeric_chars = pipeline.check_fasta_headers(args.input_genome)
-    if non_alphanumeric_chars:
-        print("\nNon alphanumeric characters detected in fasta headers. Renaming sequences.", flush=True)
-        pipeline.rename_assembly(args.input_genome)
+    non_alphanumeric_chars = False
+    if not args.bam_file:
+        non_alphanumeric_chars = pipeline.check_fasta_headers(args.input_genome)
+        if non_alphanumeric_chars:
+            print("\nNon alphanumeric characters detected in fasta headers. Renaming sequences.", flush=True)
+            pipeline.rename_assembly(args.input_genome)
+        else:
+            os.system(f"ln -s {args.input_genome} assembly.fasta")
+        mapping.launch_mapping("assembly.fasta", pe1, pe2, args.threads)
     else:
+        if pipeline.check_fasta_headers(args.input_genome):
+            print("\nERROR: Non-alphanumeric characters detected in fasta headers will cause samtools view to crash.", flush=True)
+            print("Please remove these characters before launching Hapo-G with -b or let Hapo-G do the mapping by itself.", flush=True)
+            print("Authorized characters belong to this list: 'a-z', 'A-Z', '0-9', '_-'.", flush=True)
+            sys.exit(-1)
         os.system(f"ln -s {args.input_genome} assembly.fasta")
-
-    mapping.launch_mapping("assembly.fasta", pe1, pe2, args.threads)
+        os.system(f"ln -s {args.bam_file} bam/aln.sorted.bam")
+        mapping.index_bam()
 
     if int(args.threads) > 1:
         pipeline.create_chunks("assembly.fasta", args.threads)
