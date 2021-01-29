@@ -41,14 +41,26 @@ which bwa
 which samtools
 ```
 
-Then, you can launch Hapo-G by using the Python3 script in its root directory:
+### Standard pipeline
+You can launch Hapo-G by using the Python3 script in its root directory:
 ```
 python3 HAPOG_ROOT/hapog.py \
   --genome assembly.fasta \   # Fasta file of the genome to polish
   --pe1 R1.fastq.gz \         # Illumina R1 reads in .fastq or .fastq.gz, can be given multiple times
   --pe2 R2.fastq.gz \         # Illumina R2 reads in .fastq or .fastq.gz, can be given multiple times
   -o polishing \              # Output directory
-  -t 36                       # Number of threads to use
+  -t 36 \                     # Number of threads to use
+  -u                          # Include unpolished sequences in the output
 ```
 
-
+### Skipping the mapping step
+The mapping step can be skipped if a sorted BAM file is provided via the `-b` switch. Please verify that your fasta headers don't contain any non-alphanumerical characters (`-`and `_`are accepted) before launching Hapo-G.
+A typical command line with a bam file would look like this:
+```
+python3 HAPOG_ROOT/hapog.py \
+  --genome assembly.fasta \   # Fasta file of the genome to polish
+  -b mapping.sorted.bam       # Sorted BAM file
+  -o polishing \              # Output directory
+  -t 36 \                     # Number of threads to use
+  -u                          # Include unpolished sequences in the output
+```
