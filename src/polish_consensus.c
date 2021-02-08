@@ -163,14 +163,11 @@ int parse_bam(char* bam, char* fa, char* outfa, char *changefile, int silent) {
     } else too_short++;
     previous_position = current_position;
   }
-  if(ap->len_seq > 0) { 
-    for(i = previous_position ; i < ap->len_seq ; i++) 
-      select_base(ap, allali, i, s, readname);
+  for(i = previous_position ; i < ap->len_seq ; i++) 
+    select_base(ap, allali, i, s, readname);
   
-    print_seq(s, out);
-    if(!silent) print_step(ap->len_seq, ap->len_seq);
-  }
-  
+  print_seq(s, out);
+  if(!silent) print_step(ap->len_seq, ap->len_seq);
   nb_changes += ap->nb_changes;
   nb_hapB += ap->nbhapB;
   printf("\n\nNumber of reads               : %i\n", tot_read);
