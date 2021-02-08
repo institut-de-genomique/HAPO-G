@@ -10,7 +10,7 @@ import time
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="hapog", 
-        description="\n\nHapo-G uses alignments produced by BWA (or any other aligner that produces SAM files) to polish the consensus of a genome assembly.",
+        description="\n\nHAPoG uses alignments produced by BWA (or any other aligner that produces SAM files) to polish the consensus of a genome assembly.",
         formatter_class=argparse.RawTextHelpFormatter,
         add_help=True)
 
@@ -33,12 +33,6 @@ if __name__ == "__main__":
         help="Fastq.gz paired-end file (pair 2, can be given multiple times)",
         default=None,
         required=False)
-    mandatory_args.add_argument("--single", 
-        action="store", 
-        dest="long_reads", 
-        help="Use long reads instead of short reads (can only be given one time, please concatenate all read files into one)",
-        default=None,
-        required=False)
 
     optional_args = parser.add_argument_group("Optional arguments")
     optional_args.add_argument("-b",  
@@ -57,18 +51,18 @@ if __name__ == "__main__":
         action="store", 
         dest="output_dir", 
         help="Output directory name",
-        default="hapog_results",
+        default="HAPoG_results",
         required=False)
     optional_args.add_argument("--threads", "-t",  
         action="store", 
         dest="threads", 
-        help="Number of threads (used in BWA, Samtools and Hapo-G)",
+        help="Number of threads (used in BWA, Samtools and HAPoG)",
         default="8",
         required=False)
     optional_args.add_argument("--bin",  
         action="store", 
         dest="hapog_bin", 
-        help="Use a different Hapo-G binary (for debug purposes)",
+        help="Use a different HAPoG binary (for debug purposes)",
         default=None,
         required=False)
 
@@ -80,30 +74,22 @@ if __name__ == "__main__":
 
     pe1 = []
     pe2 = []
-    single = []
-    use_short_reads, use_long_reads = False, False
-
     if args.bam_file:
         args.bam_file = os.path.abspath(args.bam_file)
     else:
-        if not args.long_reads and (not args.pe1 or not args.pe2):
-            print("You need to specify the paths to paired-end or long reads files.")
+        if not args.pe1 or not args.pe2:
+            print("You need to specify the paths to paired-end read files.")
             sys.exit(-1)
 
-        if not args.long_reads:
-            for pe in args.pe1 :
-                pe1.append(os.path.abspath(pe))
-            for pe in args.pe2 :
-                pe2.append(os.path.abspath(pe))
-            use_short_reads = True
-        else:
-            args.long_reads = os.path.abspath(args.long_reads)
-            use_long_reads = True            
+        for pe in args.pe1 :
+            pe1.append(os.path.abspath(pe))
+        for pe in args.pe2 :
+            pe2.append(os.path.abspath(pe))  
 
     try:
         os.mkdir(args.output_dir)
     except:
-        print(f"\nOutput directory {args.output_dir} can't be created, please erase it before launching Hapo-G.\n")
+        print(f"\nOutput directory {args.output_dir} can't be created, please erase it before launching HAPoG.\n")
         sys.exit(1)
     os.chdir(args.output_dir)
 
@@ -121,19 +107,13 @@ if __name__ == "__main__":
             pipeline.rename_assembly(args.input_genome)
         else:
             os.system(f"ln -s {args.input_genome} assembly.fasta")
-
-        if use_short_reads:
-            mapping.launch_PE_mapping("assembly.fasta", pe1, pe2, args.threads)
-        else:
-            mapping.launch_LR_mapping("assembly.fasta", args.long_reads, args.threads)
-
+        mapping.launch_mapping("assembly.fasta", pe1, pe2, args.threads)
     else:
         if pipeline.check_fasta_headers(args.input_genome):
             print("\nERROR: Non-alphanumeric characters detected in fasta headers will cause samtools view to crash.", flush=True)
             print("Please remove these characters before launching Hapo-G with -b or let Hapo-G do the mapping by itself.", flush=True)
             print("Authorized characters belong to this list: 'a-z', 'A-Z', '0-9', '_-'.", flush=True)
             sys.exit(-1)
-
         os.system(f"ln -s {args.input_genome} assembly.fasta")
         os.system(f"ln -s {args.bam_file} bam/aln.sorted.bam")
         mapping.index_bam()
@@ -151,12 +131,12 @@ if __name__ == "__main__":
     if non_alphanumeric_chars:
         pipeline.rename_results()
     else:
-        os.system("mv hapog_results/hapog.changes.tmp hapog_results/hapog.changes")
-        os.system("mv hapog_results/hapog.fasta.tmp hapog_results/hapog.fasta")
+        os.system("mv HAPoG_results/hapog.changes.tmp HAPoG_results/hapog.changes")
+        os.system("mv HAPoG_results/hapog.fasta.tmp HAPoG_results/hapog.fasta")
 
     if args.include_unpolished:
         pipeline.include_unpolished(args.input_genome)
 
-    print("\nResults can be found in the hapog_results directory")
+    print("\nResults can be found in the HAPoG_results directory")
     print(f"Total running time: {int(time.perf_counter() - global_start)} seconds")
-    print("\nThanks for using Hapo-G, have a great day :-)\n")     
+    print("\nThanks for using HAPoG, have a great day :-)\n")     

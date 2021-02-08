@@ -204,7 +204,7 @@ char* get_bamseq(bam1_t *aln) {
 }
 
 char* get_base(alipile_t *ap, int read, int pos) {
-  char* region = malloc(100000 * sizeof(char));
+  char* region = malloc(1000 * sizeof(char));
   region[0]= '\0';
   char* aliseq = ap->seqpile[read];
   bam1_t* aln = ap->pile[read];

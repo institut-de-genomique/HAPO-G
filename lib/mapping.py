@@ -3,7 +3,7 @@ import subprocess
 import time
 
 
-def launch_PE_mapping(genome, pe1, pe2, threads):
+def launch_mapping(genome, pe1, pe2, threads):
     ########## BWA INDEX ##########
     print("\nGenerating bwa index...", flush=True)
     cmd = ["bwa", "index", genome]
@@ -57,24 +57,6 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
     ########## SAMTOOLS INDEX ##########
     index_bam()
 
-
-def launch_LR_mapping(genome, long_reads, threads):########## BWA MEM ##########
-    print("\nLaunching mapping on genome...", flush=True)
-    cmd = f"bash -c 'minimap2 -t {threads} -a -x map-pb {genome} {long_reads} 2> logs/minimap2.e"
-    cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
-
-    start = time.perf_counter()
-    print(cmd, flush=True, file=open("cmds/mapping.cmds", "w"))
-    return_code = os.system(cmd)
-    if return_code != 0:
-        print(f"Error in minimap2 and samtools sort, return code: {return_code}")
-        print(f"Faulty command: {cmd}")
-        exit(1)
-    else:
-        print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
-
-    ########## SAMTOOLS INDEX ##########
-    index_bam()
 
 
 def index_bam():
