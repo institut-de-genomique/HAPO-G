@@ -60,7 +60,7 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
 
 def launch_LR_mapping(genome, long_reads, threads):########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
-    cmd = f"bash -c 'minimap2 -t {threads} -a -x map-pb {genome} {long_reads} 2> logs/minimap2.e"
+    cmd = f"bash -c 'minimap2 -t {threads} -a --secondary=no -x map-pb {genome} {long_reads} 2> logs/minimap2.e"
     cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
