@@ -25,9 +25,20 @@ First, clone this repository:
 git clone https://github.com/institut-de-genomique/HAPO-G hapog
 ```
 
-Go into the created directory and run the build script:
+If htslib is already installed on your system, go to the next point `Build with existing htslib`. If you want Hapo-G to download and install htslib for you, go to the point `Build with a new htslib install`
+
+### Build with existing htslib
+Building with an existing htslib ensures that Hapo-G and Samtools are using the same version of the library and should reduce compatibility issues. To build with an existing htslib, do:
 ```
-cd hapog
+cd Hapo-G
+bash build.sh -l path_to_htslib
+```
+If samtools is already installed on your system at `/home/user/samtools`, htslib is probably installed at `/home/user/samtools/htslib`.
+
+### Build with a new htslib
+Hapo-G can download and compile htslib for you, to do so, plaese run:
+```
+cd Hapo-G
 bash build.sh
 ```
 
