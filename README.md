@@ -75,3 +75,8 @@ python3 HAPOG_ROOT/hapog.py \
   -t 36 \                     # Number of threads to use
   -u                          # Include unpolished sequences in the output
 ```
+
+## Acknowledgements
+Some Cmake files have been taken and/or modified from several projects. We would like to thank:
+- [panguangze](https://delta.cs.cityu.edu.hk/gzpan2) for his/her `FindHTSLIB.cmake` library
+- [L. Kärkkäinen](https://github.com/Tronic) for his `LibFindMacros.cmake` library
