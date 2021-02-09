@@ -36,7 +36,7 @@ bash build.sh -l path_to_htslib
 If samtools is already installed on your system at `/home/user/samtools`, htslib is probably installed at `/home/user/samtools/htslib`.
 
 ### Build with a new htslib
-Hapo-G can download and compile htslib for you, to do so, plaese run:
+Hapo-G can download and compile htslib for you, to do so, please run:
 ```
 cd Hapo-G
 bash build.sh
