@@ -8,10 +8,6 @@
 set(HTSLIB_SEARCH_DIRS
         ${HTSLIB_SEARCH_DIRS}
         $ENV{HTLSIB_ROOT}
-        $ENV{HOME}/local
-        $ENV{HOME}/.local
-        /usr
-        /usr/local
         )
 
 set(_htslib_ver_path "htslib-${htslib_FIND_VERSION}")
