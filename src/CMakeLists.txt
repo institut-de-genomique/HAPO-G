@@ -35,7 +35,7 @@ else()
         ExternalProject_Add(htslib
             PREFIX ${HTSLIB_PREFIX}
             GIT_REPOSITORY "https://github.com/samtools/htslib"
-            GIT_TAG "1.9"
+            GIT_TAG "1.11"
             BUILD_IN_SOURCE 1
             CONFIGURE_COMMAND autoheader && autoconf && ${HTSLIB_PREFIX}/src/htslib/configure --prefix=${HTSLIB_PREFIX}/src/htslib/
             BUILD_COMMAND make
