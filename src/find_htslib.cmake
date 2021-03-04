@@ -25,7 +25,7 @@ find_path(htslib_INCLUDE_DIR
 
 # Finally the library itself
 find_library(htslib_LIBRARY
-        NAMES hts libhts.a hts.a
+        NAMES libhts.a hts.a
         PATHS ${htslib_INCLUDE_DIR} ${HTSLIB_SEARCH_DIRS}
         NO_DEFAULT_PATH
         PATH_SUFFIXES lib lib64 ${_htslib_ver_path}
