@@ -311,7 +311,7 @@ void select_base(alipile_t *ap, alipile_t *allali, int current_pos,
       if(ratioall >= 0.8) {
 	if(strcmp(read, "-") != 0) add_str(s, read);
 	if(strcmp(ref, read) != 0) {
-	  fprintf(ap->changes, "%s\t%i\tref=%s\tread=%s\treadname=%s\thomo\tratio1=%.4f\tratio2=%.4fn",
+	  fprintf(ap->changes, "%s\t%i\tref=%s\tread=%s\treadname=%s\thomo\tratio1=%.4f\tratio2=%.4f\n",
 		  ap->name_seq, current_pos, ref, read,
 		  bam_get_qname(ap->pile[ap->current_read]), ratio, ratioall);
 	  
