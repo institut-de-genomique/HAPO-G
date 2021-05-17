@@ -2,7 +2,7 @@
 
 Hapo-G (pronounced like apogee) is a tool that aims to improve the quality of genome assemblies by polishing the consensus with accurate reads.
 
-Biorxiv preprint : [link](https://www.biorxiv.org/content/10.1101/2020.12.14.422624v1 "Hapo-G Biorxiv preprint")
+Publication : [link](https://academic.oup.com/nargab/article/3/2/lqab034/6262629 "Hapo-G publication")
 
 In case of troubles when using or installing the software, please open up an issue by clicking [here](https://github.com/institut-de-genomique/Hapo-G/issues/new "Github issue page").
 
@@ -20,6 +20,14 @@ Hapo-G depends on some software and libraries:
 
 
 ## Installation
+### Installation with conda
+```
+conda create -n hapog
+conda activate hapog
+conda install -c lbgb_cea hapog
+```
+
+### Installing from Github
 First, clone this repository:
 ```
 git clone https://github.com/institut-de-genomique/HAPO-G hapog
@@ -27,7 +35,7 @@ git clone https://github.com/institut-de-genomique/HAPO-G hapog
 
 If htslib is already installed on your system, go to the next point `Build with existing htslib`. If you want Hapo-G to download and install htslib for you, go to the point `Build with a new htslib install`
 
-### Build with existing htslib
+#### Build with existing htslib
 Building with an existing htslib ensures that Hapo-G and Samtools are using the same version of the library and should reduce compatibility issues. To build with an existing htslib, do:
 ```
 cd hapog
@@ -35,7 +43,7 @@ bash build.sh -l path_to_htslib
 ```
 If samtools is already installed on your system at `/home/user/samtools`, htslib is probably installed at `/home/user/samtools/htslib`.
 
-### Build with a new htslib
+#### Build with a new htslib
 Hapo-G can download and compile htslib for you, to do so, please run:
 ```
 cd hapog
