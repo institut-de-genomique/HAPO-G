@@ -166,7 +166,7 @@ int parse_bam(char* bam, char* fa, char* outfa, char *changefile, int silent) {
   for(i = previous_position ; i < ap->len_seq ; i++) 
     select_base(ap, allali, i, s, readname);
   
-  if(!ap->len_seq) {
+  if(ap->len_seq != 0) {
     print_seq(s, out);
     if(!silent) print_step(ap->len_seq, ap->len_seq);
   }
