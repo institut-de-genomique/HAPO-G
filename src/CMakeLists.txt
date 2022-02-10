@@ -60,6 +60,9 @@ set(CMAKE_C_FLAGS "-O3 -g")
 add_executable(hapog polish_consensus.c alipile.c hash.c polished.c)
 
 # Links
+target_link_libraries(hapog pthread)
+target_link_libraries(hapog curl)
+target_link_libraries(hapog crypto)
 target_link_libraries(hapog m)
 target_link_libraries(hapog hts)
 target_link_libraries(hapog z)
