@@ -98,6 +98,9 @@ if __name__ == "__main__":
             use_short_reads = True
         else:
             args.long_reads = os.path.abspath(args.long_reads)
+            if not os.path.exists(args.long_reads):
+                print("Long reads not found: %s" % (args.long_reads))
+                sys.exit(-1)
             use_long_reads = True            
 
     try:

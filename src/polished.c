@@ -74,8 +74,12 @@ void add_str(polished_t *s, char *str) {
   assert(str != NULL && s->seq != NULL);
   int len = strlen(str);
   if(s->pos_seq + len >= s->size_alloc) {
-    s->seq = (char *) realloc(s->seq, (s->size_alloc + s->chunk) * sizeof(char));  
-    s->size_alloc += s->chunk;
+    int extend = s->chunk;
+    while(len >= extend) { extend += s->chunk; }
+    void* tmpseq = (char *) realloc(s->seq, (s->size_alloc + extend) * sizeof(char));  
+    assert(tmpseq);
+    s->seq = tmpseq;
+    s->size_alloc += extend;
   }
   int i = 0;
   for(i = 0 ; i < len ; i++)
