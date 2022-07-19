@@ -181,21 +181,21 @@ def merge_results(threads):
 
     start = time.perf_counter()
 
-    with open("hapog_results/hapog.fasta.tmp", "wb") as out:
+    with open("hapog_results/hapog.fasta.tmp", "w") as out:
         for i in range(1, threads+1):
             f = f"hapog_chunks/chunks_{i}.fasta"
             if os.path.exists(f):
-                with open(f,'rb') as fd:
+                with open(f,'r') as fd:
                     shutil.copyfileobj(fd, out)
-                    out.write(b"\n")
+                    out.write("\n")
 
-    with open("hapog_results/hapog.changes.tmp", "wb") as out:
+    with open("hapog_results/hapog.changes.tmp", "w") as out:
         for i in range(1, threads+1):
             f = f"hapog_chunks/chunks_{i}.changes"
             if os.path.exists(f):
-                with open(f,'rb') as fd:
+                with open(f,'r') as fd:
                     shutil.copyfileobj(fd, out)
-                    out.write(b"\n")
+                    out.write("\n")
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
