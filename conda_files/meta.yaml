@@ -1,10 +1,10 @@
 package:
   name: hapog
-  version: 1.3.2
+  version: 1.3.3
 
 source:
-  url: https://github.com/institut-de-genomique/HAPO-G/archive/refs/tags/1.3.2.tar.gz
-  sha256: "fa3ed01864595c96f442099b6a1a6d0dc7f0589ef0223dcdaec85f56e9da07fa"
+  url: https://github.com/institut-de-genomique/HAPO-G/archive/refs/tags/1.3.3.tar.gz
+  sha256: "794339d326c7ddbfa215d2eb78c4eb2031049e675c5387caaa61d8ffe71a01b8"
 
 requirements:
   build:
