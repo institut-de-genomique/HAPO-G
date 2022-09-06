@@ -147,7 +147,7 @@ def launch_hapog(hapog_bin):
     script_path = os.path.realpath(__file__).replace("/hapog/pipeline.py", "")
     if not hapog_bin:
         if not is_in_path("hapog_bin"):
-            hapog_bin = f"{script_path}/build/hapog"
+            hapog_bin = f"{script_path}/hapog_build/hapog"
         else:
             hapog_bin = "hapog_bin"
     else:

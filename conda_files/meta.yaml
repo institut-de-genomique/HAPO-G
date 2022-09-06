@@ -4,7 +4,7 @@ package:
 
 source:
   url: https://github.com/institut-de-genomique/HAPO-G/archive/refs/tags/1.3.2.tar.gz
-  sha256: ""
+  sha256: "fa3ed01864595c96f442099b6a1a6d0dc7f0589ef0223dcdaec85f56e9da07fa"
 
 requirements:
   build:
@@ -12,6 +12,7 @@ requirements:
     - cmake
     - make
     - 'htslib==1.11'
+    - pip
   host:
     - 'python>=3.6'
     - 'htslib==1.11'

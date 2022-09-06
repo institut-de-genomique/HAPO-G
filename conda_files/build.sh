@@ -6,4 +6,4 @@ echo $PREFIX
 
 pip install .
 bash build.sh -l $LIBRARY_PATH
-cp -r build/hapog ${PREFIX}/bin/hapog_bin
+cp -r hapog_build/hapog ${PREFIX}/bin/hapog_bin
