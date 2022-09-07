@@ -216,5 +216,5 @@ void usage() {
   fprintf(stderr, "            -h      : this help\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "--------------------------------------------------------------------------------------------\n");
-  exit(1);
+  exit(0);
 }
