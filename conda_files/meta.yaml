@@ -4,28 +4,29 @@ package:
 
 source:
   url: https://github.com/institut-de-genomique/HAPO-G/archive/refs/tags/1.3.2.tar.gz
-  sha256: "dbcf84dd4bb84323552c88437770192adadf833ad7a07bb7a12b4d60d034418f"
+  sha256: "f0deabf0093344b2131383667e10b8130730a5484b5d7a3332f4c9187a9ba381"
 
 requirements:
   build:
     - {{ compiler('c') }}
     - cmake
     - make
-    - 'htslib==1.11'
+    - htslib
   host:
-    - 'python>=3.6'
-    - 'htslib==1.11'
+    - 'python>=3.7'
+    - htslib
   run:
-    - 'htslib==1.11'
-    - 'python>=3.6'
+    - htslib
+    - 'python>=3.7'
     - 'biopython[channel=conda-forge]'
     - bwa
-    - 'samtools==1.11'
+    - samtools
     - minimap2
 
 test:
   commands:
     - hapog -h
+    - hapog_bin -h
 
 about:
   home: https://github.com/institut-de-genomique/HAPO-G
