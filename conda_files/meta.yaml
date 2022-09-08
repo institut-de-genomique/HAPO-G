@@ -1,20 +1,21 @@
+{% set version = "1.3.2" %}
+
 package:
   name: hapog
-  version: 1.3.2
+  version: {{ version }}
 
 build:
   number: 0
 
 source:
-  url: https://github.com/institut-de-genomique/HAPO-G/archive/refs/tags/1.3.2.tar.gz
-  sha256: "67d6c055ba2e7c26520ed1e8c41676b7651eea8459da6c43999c3f31cfb9c484"
+  url: https://github.com/institut-de-genomique/HAPO-G/archive/refs/tags/{{ version }}.tar.gz
+  sha256: "46e0d102467276d0aee5c493e5e678c76120760f0dbe57caf4d880d366dcb285"
 
 requirements:
   build:
     - {{ compiler('c') }}
     - cmake
     - make
-    - htslib
   host:
     - 'python>=3.7'
     - htslib
@@ -38,3 +39,7 @@ about:
   license: OTHER
   license_file: LICENSE.md
   summary: Haplotype-Aware Polishing of Genomes
+
+extra:
+  identifiers:
+    - doi:10.1093/nargab/lqab034
