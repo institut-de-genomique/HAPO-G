@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.0)
 include(ExternalProject)
 
 # Set gcc and g++ compiler
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER g++)
+set(CMAKE_C_COMPILER clang)
+#set(CMAKE_CXX_COMPILER g++)
 
 # Set the project name
 project(HAPoG C)
