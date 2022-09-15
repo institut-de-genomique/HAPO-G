@@ -24,7 +24,7 @@ Hapo-G depends on some software and libraries:
 ```
 conda create -n hapog
 conda activate hapog
-conda install -c lbgb_cea hapog
+conda install -c bioconda hapog
 ```
 
 ### Installing from Github
@@ -71,6 +71,8 @@ python3 HAPOG_ROOT/hapog.py \
   -t 36 \                     # Number of threads to use
   -u                          # Include unpolished sequences in the output
 ```
+
+**NOTE**: If you installed Hapo-G using conda, you can invoke it by directly running `hapog`.
 
 ### Skipping the mapping step
 The mapping step can be skipped if a sorted BAM file is provided via the `-b` switch. Please verify that your fasta headers don't contain any non-alphanumerical characters (`-`and `_`are accepted) before launching Hapo-G.
