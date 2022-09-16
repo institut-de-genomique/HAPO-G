@@ -16,7 +16,7 @@ with open(path.join(this_directory, "README.md")) as f:
 setup(
     name="hapog",
     packages=["hapog"],
-    version="1.3.2",
+    version="1.3.3",
     license="CeCILL",
     description="Haplotype-Aware Polishing of Genomes",
     long_description=long_description,
