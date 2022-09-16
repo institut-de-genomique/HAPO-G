@@ -145,12 +145,14 @@ if __name__ == "__main__":
         pipeline.create_chunks("assembly.fasta", args.threads)
         pipeline.extract_bam(int(args.threads))
     else:
+        os.mkdir("chunks")
+        os.mkdir("chunks_bam")
         os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
-        os.system(f"ln -s bam/aln.sorted.bam chunks_bam/chunks_1.bam")
+        os.system(f"ln -s ../bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
     pipeline.launch_hapog(args.hapog_bin)
     pipeline.merge_results(int(args.threads))
-        
+
     if non_alphanumeric_chars:
         pipeline.rename_results()
     else:
