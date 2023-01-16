@@ -7,33 +7,30 @@ import subprocess
 import time
 
 
+def is_in_path(tool):
+    return shutil.which(tool) is not None
+
+
 def check_dependencies():
     missing_dependency = False
     print("\nChecking dependencies...", flush=True)
-    FNULL = open(os.devnull, 'w')
 
-    #Looking for BWA
-    try:
-        subprocess.call(["bwa", "mem"], stdout=FNULL, stderr=FNULL)
-        print("\tFound BWA.", flush=True)
-    except OSError:
-        print("\tWARNING : BWA not found.", flush=True)
-        missing_dependency = True
-
-    #Looking for Samtools
-    try:
-        subprocess.call(["samtools"], stdout=FNULL, stderr=FNULL)
-        print("\tFound Samtools.", flush=True)
-    except OSError:
-        print("\tWARNING : Samtools not found.", flush=True)
-        missing_dependency = True
+    tools = ["bwa", "samtools"]
+    for tool in tools:
+        if not is_in_path(tool):
+            print(f"\tWARNING: {tool} not found.", flush=True)
+            missing_dependency = True
+        else:
+            print(f"\tFound {tool}", flush=True)
 
     if missing_dependency:
-    	exit(-1)
+        exit(-1)
 
 
 def check_fasta_headers(genome):
-    authorized_chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+    authorized_chars = (
+        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
+    )
     for line in open(genome):
         if line.startswith(">"):
             header = line[1:].rstrip("\n")
@@ -47,7 +44,7 @@ def get_genome_size(genome):
     cumul_size = 0
     for record in SeqIO.parse(open(genome), "fasta"):
         cumul_size += len(record.seq)
-    return(cumul_size)
+    return cumul_size
 
 
 def rename_assembly(genome):
@@ -68,7 +65,10 @@ def create_chunks(genome, threads):
     cumul_size = get_genome_size(genome)
 
     chunk_size = cumul_size / int(threads)
-    print(f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (depending of scaffold sizes)", flush=True)
+    print(
+        f"\nFragmenting the genome into {threads} chunks of {int(chunk_size):,} bases (depending of scaffold sizes)",
+        flush=True,
+    )
     try:
         os.mkdir("chunks")
     except:
@@ -117,14 +117,18 @@ def extract_bam(processes):
         cmd = cmds.pop(0)
         bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
         print(" ".join(cmd), flush=True, file=open("cmds/extract_bam.cmds", "a"))
-        procs.append(subprocess.Popen(cmd,
-            stdout = open(bam, "w"),
-            stderr = open("logs/samtools_split.e", "a")))
-    
+        procs.append(
+            subprocess.Popen(
+                cmd, stdout=open(bam, "w"), stderr=open("logs/samtools_split.e", "a")
+            )
+        )
+
     for p in procs:
         p.wait()
         if p.returncode != 0:
-            print(f"ERROR: Samtools view didn't finish correctly, return code: {p.returncode}")
+            print(
+                f"ERROR: Samtools view didn't finish correctly, return code: {p.returncode}"
+            )
             print("Faulty command: {p.args}")
             exit(1)
 
@@ -140,27 +144,38 @@ def launch_hapog(hapog_bin):
 
     start = time.perf_counter()
 
-    script_path = os.path.realpath(__file__).replace("/lib/pipeline.py", "")
+    script_path = os.path.realpath(__file__).replace("/hapog/pipeline.py", "")
     if not hapog_bin:
-        hapog_bin = f"{script_path}/build/hapog"
+        if not is_in_path("hapog_bin"):
+            hapog_bin = f"{script_path}/hapog_build/hapog"
+        else:
+            hapog_bin = "hapog_bin"
     else:
-        print(f"Using this bin: {hapog_bin}" )
+        print(f"Using this bin: {hapog_bin}")
 
     procs = []
     for chunk in glob.glob("chunks/*.fasta"):
         chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
         cmd = [
-            hapog_bin, 
-            "-b", f"chunks_bam/{chunk_prefix}.bam", 
-            "-f", chunk, 
-            "-o", f"hapog_chunks/{chunk_prefix}.fasta",
-            "-c", f"hapog_chunks/{chunk_prefix}.changes"
+            hapog_bin,
+            "-b",
+            f"chunks_bam/{chunk_prefix}.bam",
+            "-f",
+            chunk,
+            "-o",
+            f"hapog_chunks/{chunk_prefix}.fasta",
+            "-c",
+            f"hapog_chunks/{chunk_prefix}.changes",
         ]
         print(" ".join(cmd), flush=True, file=open("cmds/hapog.cmds", "a"))
-        procs.append(subprocess.Popen(cmd,
-            stdout = open(f"logs/hapog_{chunk_prefix}.o", "w"),
-            stderr = open(f"logs/hapog_{chunk_prefix}.e", "w")))
-      
+        procs.append(
+            subprocess.Popen(
+                cmd,
+                stdout=open(f"logs/hapog_{chunk_prefix}.o", "w"),
+                stderr=open(f"logs/hapog_{chunk_prefix}.e", "w"),
+            )
+        )
+
     for p in procs:
         p.wait()
         return_code = p.returncode
@@ -181,21 +196,21 @@ def merge_results(threads):
 
     start = time.perf_counter()
 
-    with open("hapog_results/hapog.fasta.tmp", "wb") as out:
-        for i in range(1, threads+1):
+    with open("hapog_results/hapog.fasta.tmp", "w") as out:
+        for i in range(1, threads + 1):
             f = f"hapog_chunks/chunks_{i}.fasta"
             if os.path.exists(f):
-                with open(f,'rb') as fd:
+                with open(f, "r") as fd:
                     shutil.copyfileobj(fd, out)
-                    out.write(b"\n")
+                    out.write("\n")
 
-    with open("hapog_results/hapog.changes.tmp", "wb") as out:
-        for i in range(1, threads+1):
+    with open("hapog_results/hapog.changes.tmp", "w") as out:
+        for i in range(1, threads + 1):
             f = f"hapog_chunks/chunks_{i}.changes"
             if os.path.exists(f):
-                with open(f,'rb') as fd:
+                with open(f, "r") as fd:
                     shutil.copyfileobj(fd, out)
-                    out.write(b"\n")
+                    out.write("\n")
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
@@ -206,11 +221,13 @@ def rename_results():
     for line in correspondance_file:
         new, original = line.strip("\n").split("\t")
         dict_correspondance[new] = original
-    correspondance_file.close() 
+    correspondance_file.close()
 
     with open("hapog_results/hapog.fasta", "w") as out:
         for record in SeqIO.parse(open("hapog_results/hapog.fasta.tmp"), "fasta"):
-            out.write(f">{dict_correspondance[str(record.id).replace('_polished', '')]}\n{record.seq}\n")
+            out.write(
+                f">{dict_correspondance[str(record.id).replace('_polished', '')]}\n{record.seq}\n"
+            )
 
     with open("hapog_results/hapog.changes", "w") as out:
         for line in open("hapog_results/hapog.changes.tmp"):
@@ -221,7 +238,7 @@ def rename_results():
                 continue
             line = "\t".join(line)
             out.write(f"{line}\n")
-    
+
     for f in glob.glob("assembly.fasta*"):
         os.remove(f)
     os.remove("hapog_results/hapog.fasta.tmp")

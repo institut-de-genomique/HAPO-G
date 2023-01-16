@@ -41,6 +41,7 @@
 #include <stdlib.h> 
 #include <assert.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "polished.h"
 #include "hash.h"

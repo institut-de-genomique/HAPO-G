@@ -7,15 +7,17 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
     ########## BWA INDEX ##########
     print("\nGenerating bwa index...", flush=True)
     cmd = ["bwa", "index", genome]
-    
+
     start = time.perf_counter()
     print(" ".join(cmd), flush=True, file=open("cmds/bwa_index.cmds", "w"))
 
     try:
-        _ = subprocess.run(cmd, 
-            stdout = open("logs/bwa_index.o", "w"),
-            stderr = open("logs/bwa_index.e", "w"),
-            check=True)
+        _ = subprocess.run(
+            cmd,
+            stdout=open("logs/bwa_index.o", "w"),
+            stderr=open("logs/bwa_index.e", "w"),
+            check=True,
+        )
     except Exception as e:
         print("\nERROR: Couldn't index genome", flush=True)
         print(e)
@@ -26,9 +28,10 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
     ########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
     cmd = "bash -c 'bwa mem -t %s %s " % (threads, genome)
-    
+
     streamer = "cat"
-    if pe1[0].endswith(".gz"): streamer = "zcat"
+    if pe1[0].endswith(".gz"):
+        streamer = "zcat"
 
     if len(pe1) > 1:
         cmd += f"<({streamer}"
@@ -41,7 +44,7 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
         cmd += ") 2> logs/bwa_mem.e"
     else:
         cmd += pe1[0] + " " + pe2[0] + " 2> logs/bwa_mem.e"
-    
+
     cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
@@ -58,7 +61,7 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
     index_bam()
 
 
-def launch_LR_mapping(genome, long_reads, threads):########## BWA MEM ##########
+def launch_LR_mapping(genome, long_reads, threads):  ########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
     cmd = f"bash -c 'minimap2 -t {threads} -a --secondary=no -x map-pb {genome} {long_reads} 2> logs/minimap2.e"
     cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
@@ -85,10 +88,12 @@ def index_bam():
     print(" ".join(cmd), flush=True, file=open("cmds/samtools_index.cmds", "w"))
 
     try:
-        _ = subprocess.run(cmd, 
-            stdout = open("logs/samtools_index.o", "w"), 
-            stderr = open("logs/samtools_index.e", "w"),
-            check=True)
+        _ = subprocess.run(
+            cmd,
+            stdout=open("logs/samtools_index.o", "w"),
+            stderr=open("logs/samtools_index.e", "w"),
+            check=True,
+        )
     except Exception as e:
         print("\nERROR: Couldn't index bam file")
         print(e)

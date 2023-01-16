@@ -31,8 +31,8 @@ do
     esac
 done
 
-mkdir build
-cd build
+mkdir hapog_build
+cd hapog_build
 
 export HTSLIB_ROOT=${htslib_root}
 cmake ../src/
@@ -40,6 +40,6 @@ make
 cd ..
 
 mkdir bin
-ln -s ../build/hapog bin/hapog
+ln -s ../hapog_build/hapog bin/hapog
 
 echo "HAPoG was successfully built!"

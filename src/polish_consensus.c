@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <assert.h>
 #include <ctype.h>
@@ -20,6 +21,7 @@ const unsigned int BUFFER = 1000;
 void usage();
 int parse_bam(char*, char*, char*, char*, int);
 void print_step(int, int);
+void error(char*, ...);
 
 int main(int argc, char* argv[]) {
   char *BAMfile = NULL, *outfile = NULL, *changefile = NULL, *FAfile = NULL;
@@ -62,6 +64,14 @@ int main(int argc, char* argv[]) {
   if (outfile==NULL) error("Could not open output fasta file: %s\n", outfile);
   if (changefile==NULL) error("Could not open output changes file: %s\n", changefile);
   return parse_bam(BAMfile, FAfile, outfile, changefile, silent);
+}
+
+void error(char* message, ...) {
+  va_list argp;
+  va_start(argp, message);
+  vprintf(message, argp);
+  va_end(argp);
+  exit(-1);
 }
 
 int parse_bam(char* bam, char* fa, char* outfa, char *changefile, int silent) {
@@ -216,5 +226,5 @@ void usage() {
   fprintf(stderr, "            -h      : this help\n");
   fprintf(stderr, "\n");
   fprintf(stderr, "--------------------------------------------------------------------------------------------\n");
-  exit(1);
+  exit(0);
 }
