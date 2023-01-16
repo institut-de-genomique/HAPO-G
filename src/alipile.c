@@ -228,8 +228,12 @@ float get_ratio_base(alipile_t *ap, char* str, int pos) {
   int i = 0, nb_id = 0, tot = 0;
   for( i = 0 ; i < ap->nb_ali ; i++ ) {
     char *seq = get_base(ap, i, pos);
-    if(strcmp(str, seq) == 0) nb_id++;
-    tot++;
+    bam1_t *b = ap->pile[i];
+    // check if the alignment start before the current base minus the size of the insertion
+    if(b->core.pos < pos - strlen(str)) {
+      if(strcmp(str, seq) == 0) nb_id++;
+      tot++;
+    }
     free(seq);
   }
   return ((float)nb_id/(float)tot);
