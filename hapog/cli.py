@@ -87,11 +87,27 @@ def main():
         required=False,
     )
     optional_args.add_argument(
+        "--hapog-threads",
+        action="store",
+        dest="hapog_threads",
+        help="Maximum number of Hapo-G jobs to launch in parallel (Defaults to the same value as --threads)",
+        default=0,
+        required=False,
+    )
+    optional_args.add_argument(
         "--bin",
         action="store",
         dest="hapog_bin",
         help="Use a different Hapo-G binary (for debug purposes)",
         default=None,
+        required=False,
+    )
+    optional_args.add_argument(
+        "--samtools-mem",
+        action="store",
+        dest="samtools_mem",
+        help="Amount of memory to use per samtools thread (Default: '5G')",
+        default="5G",
         required=False,
     )
 
@@ -100,11 +116,13 @@ def main():
 
     args.input_genome = os.path.abspath(args.input_genome)
     args.output_dir = os.path.abspath(args.output_dir)
+    if args.hapog_threads == 0:
+        args.hapog_threads = args.threads
 
     pe1 = []
     pe2 = []
     single = []
-    use_short_reads, use_long_reads = False, False
+    use_short_reads = False
 
     if args.bam_file:
         args.bam_file = os.path.abspath(args.bam_file)
@@ -124,7 +142,6 @@ def main():
             if not os.path.exists(args.long_reads):
                 print("Long reads not found: %s" % (args.long_reads))
                 sys.exit(-1)
-            use_long_reads = True
 
     try:
         os.mkdir(args.output_dir)
@@ -154,9 +171,9 @@ def main():
             os.system(f"ln -s {args.input_genome} assembly.fasta")
 
         if use_short_reads:
-            mapping.launch_PE_mapping("assembly.fasta", pe1, pe2, args.threads)
+            mapping.launch_PE_mapping("assembly.fasta", pe1, pe2, args.threads, args.samtools_mem)
         else:
-            mapping.launch_LR_mapping("assembly.fasta", args.long_reads, args.threads)
+            mapping.launch_LR_mapping("assembly.fasta", args.long_reads, args.threads, args.samtools_mem)
 
     else:
         if pipeline.check_fasta_headers(args.input_genome):
@@ -187,7 +204,7 @@ def main():
         os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
         os.system(f"ln -s ../bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
-    pipeline.launch_hapog(args.hapog_bin)
+    pipeline.launch_hapog(args.hapog_bin, args.hapog_threads)
     pipeline.merge_results(int(args.threads))
 
     if non_alphanumeric_chars:

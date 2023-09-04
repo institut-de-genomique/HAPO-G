@@ -135,7 +135,7 @@ def extract_bam(processes):
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
 
-def launch_hapog(hapog_bin):
+def launch_hapog(hapog_bin, parallel_jobs):
     print(f"\nLaunching Hapo-G on each chunk", flush=True)
     try:
         os.mkdir("hapog_chunks")
@@ -175,6 +175,11 @@ def launch_hapog(hapog_bin):
                 stderr=open(f"logs/hapog_{chunk_prefix}.e", "w"),
             )
         )
+        # Only launch a job if there is less than 'parallel_jobs' running
+        # Otherwise, wait for any to finish before launching a new one
+        while len([p for p in procs if p.poll() is None]) >= parallel_jobs:
+            time.sleep(10)
+
 
     for p in procs:
         p.wait()

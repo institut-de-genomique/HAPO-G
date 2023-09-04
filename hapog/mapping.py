@@ -3,7 +3,7 @@ import subprocess
 import time
 
 
-def launch_PE_mapping(genome, pe1, pe2, threads):
+def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
     ########## BWA INDEX ##########
     print("\nGenerating bwa index...", flush=True)
     cmd = ["bwa", "index", genome]
@@ -45,7 +45,7 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
     else:
         cmd += pe1[0] + " " + pe2[0] + " 2> logs/bwa_mem.e"
 
-    cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
+    cmd += f" | samtools sort -m {samtools_memory} -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
     print(cmd, flush=True, file=open("cmds/mapping.cmds", "w"))
@@ -61,10 +61,10 @@ def launch_PE_mapping(genome, pe1, pe2, threads):
     index_bam()
 
 
-def launch_LR_mapping(genome, long_reads, threads):  ########## BWA MEM ##########
+def launch_LR_mapping(genome, long_reads, threads, samtools_memory):  ########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
     cmd = f"bash -c 'minimap2 -t {threads} -a --secondary=no -x map-pb {genome} {long_reads} 2> logs/minimap2.e"
-    cmd += f" | samtools sort -m 5G -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
+    cmd += f" | samtools sort -m {samtools_memory} -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
     print(cmd, flush=True, file=open("cmds/mapping.cmds", "w"))
