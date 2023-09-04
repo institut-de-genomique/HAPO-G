@@ -5,6 +5,7 @@ import os
 import shutil
 import subprocess
 import time
+import warnings
 
 
 def is_in_path(tool):
@@ -117,17 +118,19 @@ def extract_bam(processes):
         cmd = cmds.pop(0)
         bam = "chunks_bam/" + cmd[3].split("/")[1].replace(".bed", ".bam")
         print(" ".join(cmd), flush=True, file=open("cmds/extract_bam.cmds", "a"))
-        procs.append(
-            subprocess.Popen(
-                cmd, stdout=open(bam, "w"), stderr=open("logs/samtools_split.e", "a")
+
+        # Ignore the ResourceWarning about unclosed files
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            procs.append(
+                subprocess.Popen(
+                    cmd, stdout=open(bam, "w"), stderr=open("logs/samtools_split.e", "a")
+                )
             )
-        )
 
     has_failed = False
     for p in procs:
         p.wait()
-        p.stdout.close()
-        p.stderr.close()
 
         if p.returncode != 0:
             print(
@@ -175,13 +178,15 @@ def launch_hapog(hapog_bin, parallel_jobs):
             f"hapog_chunks/{chunk_prefix}.changes",
         ]
         print(" ".join(cmd), flush=True, file=open("cmds/hapog.cmds", "a"))
-        procs.append(
-            subprocess.Popen(
-                cmd,
-                stdout=open(f"logs/hapog_{chunk_prefix}.o", "w"),
-                stderr=open(f"logs/hapog_{chunk_prefix}.e", "w"),
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            procs.append(
+                subprocess.Popen(
+                    cmd,
+                    stdout=open(f"logs/hapog_{chunk_prefix}.o", "w"),
+                    stderr=open(f"logs/hapog_{chunk_prefix}.e", "w"),
+                )
             )
-        )
         # Only launch a job if there is less than 'parallel_jobs' running
         # Otherwise, wait for any to finish before launching a new one
         while len([p for p in procs if p.poll() is None]) >= parallel_jobs:
@@ -191,8 +196,6 @@ def launch_hapog(hapog_bin, parallel_jobs):
     has_failed = False
     for p in procs:
         p.wait()
-        p.stdout.close()
-        p.stderr.close()
 
         return_code = p.returncode
         if return_code != 0:
