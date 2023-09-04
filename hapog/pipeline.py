@@ -123,14 +123,21 @@ def extract_bam(processes):
             )
         )
 
+    has_failed = False
     for p in procs:
         p.wait()
+        p.stdout.close()
+        p.stderr.close()
+
         if p.returncode != 0:
             print(
                 f"ERROR: Samtools view didn't finish correctly, return code: {p.returncode}"
             )
             print("Faulty command: {p.args}")
-            exit(1)
+            has_failed = True
+    
+    if has_failed:
+        exit(1)
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
@@ -181,13 +188,20 @@ def launch_hapog(hapog_bin, parallel_jobs):
             time.sleep(10)
 
 
+    has_failed = False
     for p in procs:
         p.wait()
+        p.stdout.close()
+        p.stderr.close()
+
         return_code = p.returncode
         if return_code != 0:
             print(f"ERROR: Hapo-G didn't finish successfully, exit code: {return_code}")
             print("Faulty command: %s" % (" ".join(p.args)))
-            exit(1)
+            has_failed = True
+
+    if has_failed:
+        exit(1)
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
