@@ -32,12 +32,13 @@ def check_fasta_headers(genome):
     authorized_chars = (
         "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
     )
-    for line in open(genome):
-        if line.startswith(">"):
-            header = line[1:].rstrip("\n")
-            for char in header:
-                if char not in authorized_chars:
-                    return True
+    with open(genome) as genome_file:
+        for line in genome_file:
+            if line.startswith(">"):
+                header = line[1:].rstrip("\n")
+                for char in header:
+                    if char not in authorized_chars:
+                        return True
     return False
 
 

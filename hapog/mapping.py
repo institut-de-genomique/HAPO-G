@@ -10,7 +10,8 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
     cmd = ["bwa", "index", genome]
 
     start = time.perf_counter()
-    print(" ".join(cmd), flush=True, file=open("cmds/bwa_index.cmds", "w"))
+    with open("cmds/bwa_index.cmds", "w") as cmd_file:
+        print(" ".join(cmd), flush=True, file=cmd_file)
 
     try:
         with warnings.catch_warnings():
@@ -76,7 +77,7 @@ def launch_LR_mapping(genome, long_reads, threads, samtools_memory):  ##########
 
     with open("cmds/mapping.cmds", "w") as cmd_file:
         print(cmd, flush=True, file=cmd_file)
-        
+
     return_code = os.system(cmd)
     if return_code != 0:
         print(f"Error in minimap2 and samtools sort, return code: {return_code}")
@@ -94,15 +95,18 @@ def index_bam():
     cmd = ["samtools", "index", "bam/aln.sorted.bam"]
 
     start = time.perf_counter()
-    print(" ".join(cmd), flush=True, file=open("cmds/samtools_index.cmds", "w"))
+    with open("cmds/samtools_index.cmds", "w") as cmd_file:
+        print(" ".join(cmd), flush=True, file=cmd_file)
 
     try:
-        _ = subprocess.run(
-            cmd,
-            stdout=open("logs/samtools_index.o", "w"),
-            stderr=open("logs/samtools_index.e", "w"),
-            check=True,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            _ = subprocess.run(
+                cmd,
+                stdout=open("logs/samtools_index.o", "w"),
+                stderr=open("logs/samtools_index.e", "w"),
+                check=True,
+            )
     except Exception as e:
         print("\nERROR: Couldn't index bam file")
         print(e)
