@@ -1,6 +1,7 @@
 import os
 import subprocess
 import time
+import warnings
 
 
 def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
@@ -12,12 +13,14 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
     print(" ".join(cmd), flush=True, file=open("cmds/bwa_index.cmds", "w"))
 
     try:
-        _ = subprocess.run(
-            cmd,
-            stdout=open("logs/bwa_index.o", "w"),
-            stderr=open("logs/bwa_index.e", "w"),
-            check=True,
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            _ = subprocess.run(
+                cmd,
+                stdout=open("logs/bwa_index.o", "w"),
+                stderr=open("logs/bwa_index.e", "w"),
+                check=True,
+            )
     except Exception as e:
         print("\nERROR: Couldn't index genome", flush=True)
         print(e)
@@ -48,7 +51,10 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
     cmd += f" | samtools sort -m {samtools_memory} -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
-    print(cmd, flush=True, file=open("cmds/mapping.cmds", "w"))
+
+    with open("cmds/mapping.cmds", "w") as cmd_file:
+        print(cmd, flush=True, file=cmd_file)
+
     return_code = os.system(cmd)
     if return_code != 0:
         print(f"Error in bwa mem and samtools sort, return code: {return_code}")
@@ -67,7 +73,10 @@ def launch_LR_mapping(genome, long_reads, threads, samtools_memory):  ##########
     cmd += f" | samtools sort -m {samtools_memory} -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
 
     start = time.perf_counter()
-    print(cmd, flush=True, file=open("cmds/mapping.cmds", "w"))
+
+    with open("cmds/mapping.cmds", "w") as cmd_file:
+        print(cmd, flush=True, file=cmd_file)
+        
     return_code = os.system(cmd)
     if return_code != 0:
         print(f"Error in minimap2 and samtools sort, return code: {return_code}")
