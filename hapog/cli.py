@@ -92,6 +92,7 @@ def main():
         dest="hapog_threads",
         help="Maximum number of Hapo-G jobs to launch in parallel (Defaults to the same value as --threads)",
         default=0,
+        type=int,
         required=False,
     )
     optional_args.add_argument(

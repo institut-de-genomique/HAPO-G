@@ -93,6 +93,7 @@ if __name__ == "__main__":
         help="Maximum number of Hapo-G jobs to launch in parallel (Defaults to the same value as --threads)",
         default=0,
         required=False,
+        type=int,
     )
     optional_args.add_argument(
         "--bin",
