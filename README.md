@@ -117,7 +117,7 @@ This file is a tabulated file that gives more information on what Hapo-G did to 
   - Ratio of reads from the same haplotypes as the template read that validate the changes
   - Ratio of reads from both haplotypes that validate the changes
 
-Here is an examples:
+Here is an example:
 ```text
 Contig_1	1000	ref=A	read=TA	readname=read_2	hetero	ratio1=0.7419	ratio2=0.4237
 Contig_1  2000  ref=T read=G  readname=read_2 homo    ratio1=0.8142 ratio2=0.8323
