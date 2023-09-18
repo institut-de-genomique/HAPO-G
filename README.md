@@ -88,7 +88,7 @@ python3 HAPOG_ROOT/hapog.py \
 
 ## Output files
 #### `hapog_results/hapog.fasta`
-The corrected sequences. Hapo-G will parse the read alignments to the genome and focus on phasing errors (i.e the assembly switched from one haplotype to the other) and base errors (insertions, deletions, mismatches) that may be related or not to phasing errors. Remember to include the `-u` flag to tell Hapo-G to output sequences with no reads mapped and thus could not need to be changed.
+The corrected sequences. Hapo-G will parse the read alignments to the genome and focus on phasing errors (i.e the assembly switched from one haplotype to the other) and base errors (insertions, deletions, mismatches) that may be related or not to phasing errors. Remember to include the `-u` flag to tell Hapo-G to output sequences with no reads mapped and thus could not be changed.
 
 Hapo-G will not add any new contigs or scaffolds to the assembly if, as an example, one of the haplotype is missing in the input assembly file. Instead, it will correct the haplotype that is present in the input file and output a corrected version of the sequence that is phased as best as we could with the data at hand. 
 
