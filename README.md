@@ -127,5 +127,5 @@ We can see that on the contig `Contig_1`, Hapo-G found a phasing error (`hetero`
 
 ## Acknowledgements
 Some Cmake files have been taken and/or modified from several projects. We would like to thank:
-- [panguangze](https://delta.cs.cityu.edu.hk/gzpan2) for his/her `FindHTSLIB.cmake` library
-- [L. Kärkkäinen](https://github.com/Tronic) for his `LibFindMacros.cmake` library
+- [panguangze](https://delta.cs.cityu.edu.hk/gzpan2) for their `FindHTSLIB.cmake` library
+- [L. Kärkkäinen](https://github.com/Tronic) for their `LibFindMacros.cmake` library
