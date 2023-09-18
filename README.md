@@ -108,14 +108,14 @@ hapog.fasta: ACCGTTA
 
 ## `hapog_results/hapog.changes`
 This file is a tabulated file that gives more information on what Hapo-G did to the input assembly. It has eight columns that show:
-Name of the input sequence where the change was made
-Position in the input sequence where the change was made
-Nucleotide(s) at the position in column 2
-Nucleotide(s) that will replace the nucleotide(s) shown in column 3
-Name of the read that is used as the current template. In the Hapo-G algorithm, we try to follow a read for as long as possible to not switch haplotypes. If an error is found in the template read, we switch to a different read of the same haplotype
+  - Name of the input sequence where the change was made
+  - Position in the input sequence where the change was made
+  - Nucleotide(s) at the position in column 2
+  - Nucleotide(s) that will replace the nucleotide(s) shown in column 3
+  - Name of the read that is used as the current template. In the Hapo-G algorithm, we try to follow a read for as long as possible to not switch haplotypes. If an error is found in the template read, we switch to a different read of the same haplotype
 `hetero` if the change is only present in one of the two possible haplotypes (i.e a phasing error). `homo` if the change is present in both haplotypes
-Ratio of reads from the same haplotypes as the template read that validate the changes
-Ratio of reads from both haplotypes that validate the changes
+  - Ratio of reads from the same haplotypes as the template read that validate the changes
+  - Ratio of reads from both haplotypes that validate the changes
 
 Here is an examples:
 ```text
