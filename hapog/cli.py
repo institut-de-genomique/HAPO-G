@@ -203,7 +203,7 @@ def main():
         os.mkdir("chunks")
         os.mkdir("chunks_bam")
         if non_alphanumeric_chars:
-            os.system("ln -s assembly.fasta chunks/chunks_1.fasta")
+            os.system("ln -s ../assembly.fasta chunks/chunks_1.fasta")
         else:
             os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
         os.system(f"ln -s ../bam/aln.sorted.bam chunks_bam/chunks_1.bam")
