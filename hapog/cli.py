@@ -196,13 +196,16 @@ def main():
         os.system(f"ln -s {args.bam_file} bam/aln.sorted.bam")
         mapping.index_bam()
 
-    if int(args.threads) > 1:
+    if int(args.hapog_threads) > 1:
         pipeline.create_chunks("assembly.fasta", args.threads)
         pipeline.extract_bam(int(args.threads))
     else:
         os.mkdir("chunks")
         os.mkdir("chunks_bam")
-        os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
+        if non_alphanumeric_chars:
+            os.system("ln -s ../assembly.fasta chunks/chunks_1.fasta")
+        else:
+            os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
         os.system(f"ln -s ../bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
     pipeline.launch_hapog(args.hapog_bin, args.hapog_threads)
