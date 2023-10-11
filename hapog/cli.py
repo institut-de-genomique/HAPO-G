@@ -196,7 +196,7 @@ def main():
         os.system(f"ln -s {args.bam_file} bam/aln.sorted.bam")
         mapping.index_bam()
 
-    if int(args.threads) > 1:
+    if int(args.hapog_threads) > 1:
         pipeline.create_chunks("assembly.fasta", args.threads)
         pipeline.extract_bam(int(args.threads))
     else:
