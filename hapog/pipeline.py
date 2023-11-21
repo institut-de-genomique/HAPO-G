@@ -200,7 +200,7 @@ def launch_hapog(hapog_bin, parallel_jobs):
         # Only launch a job if there is less than 'parallel_jobs' running
         # Otherwise, wait for any to finish before launching a new one
         while len([p for p in procs if p.poll() is None]) >= int(parallel_jobs):
-            time.sleep(10)
+            time.sleep(1)
 
 
     has_failed = False
