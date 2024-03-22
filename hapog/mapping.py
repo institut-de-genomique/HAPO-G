@@ -5,7 +5,6 @@ import warnings
 
 
 def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
-    ########## BWA INDEX ##########
     print("\nGenerating bwa index...", flush=True)
     cmd = ["bwa", "index", genome]
 
@@ -29,7 +28,6 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
-    ########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
     cmd = "bash -c 'bwa mem -t %s %s " % (threads, genome)
 
@@ -64,7 +62,6 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
     else:
         print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
-    ########## SAMTOOLS INDEX ##########
     index_bam()
 
 
@@ -86,13 +83,12 @@ def launch_LR_mapping(genome, long_reads, threads, samtools_memory):
     else:
         print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
-    ########## SAMTOOLS INDEX ##########
     index_bam()
 
 
 def remove_secondary_alignments(bam, output_dir):
     print("\nRemoving secondary alignments from BAM file...", flush=True)
-    cmd = ["samtools", "view", "-h", "-F", "0x900", bam]
+    cmd = ["samtools", "view", "-b", "-h", "-F", "0x900", bam]
 
     start = time.perf_counter()
     with open(f"{output_dir}/cmds/samtools_view.cmds", "w") as cmd_file:
