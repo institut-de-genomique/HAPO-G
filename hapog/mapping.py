@@ -17,7 +17,7 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
             warnings.simplefilter("ignore")
             _ = subprocess.run(
                 cmd,
-                stdout=open("logs/baw_index.o", "w"),
+                stdout=open("logs/bwa_index.o", "w"),
                 stderr=open("logs/bwa_index.e", "w"),
                 check=True,
             )
