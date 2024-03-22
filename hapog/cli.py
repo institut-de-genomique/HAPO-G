@@ -119,14 +119,27 @@ def main():
     args.output_dir = os.path.abspath(args.output_dir)
     if args.hapog_threads == 0:
         args.hapog_threads = args.threads
+    if args.bam_file:
+        args.bam_file = os.path.abspath(args.bam_file)
 
     pe1 = []
     pe2 = []
-    single = []
     use_short_reads = False
 
+    try:
+        os.mkdir(args.output_dir)
+    except:
+        print(
+            f"\nOutput directory {args.output_dir} can't be created, please erase it before launching Hapo-G.\n"
+        )
+        sys.exit(1)
+    os.mkdir(f"{args.output_dir}/bam")
+    os.mkdir(f"{args.output_dir}/logs")
+    os.mkdir(f"{args.output_dir}/cmds")
+
     if args.bam_file:
-        args.bam_file = os.path.abspath(args.bam_file)
+        mapping.remove_secondary_alignments(args.bam_file, args.output_dir)
+        args.bam_file = os.path.abspath("no_secondary.bam")
     else:
         if not args.long_reads and (not args.pe1 or not args.pe2):
             print("You need to specify the paths to paired-end or long reads files.")
@@ -144,20 +157,8 @@ def main():
                 print("Long reads not found: %s" % (args.long_reads))
                 sys.exit(-1)
 
-    try:
-        os.mkdir(args.output_dir)
-    except:
-        print(
-            f"\nOutput directory {args.output_dir} can't be created, please erase it before launching Hapo-G.\n"
-        )
-        sys.exit(1)
-    os.chdir(args.output_dir)
-
-    os.mkdir("bam")
-    os.mkdir("logs")
-    os.mkdir("cmds")
-
     global_start = time.perf_counter()
+    os.chdir(args.output_dir)
 
     non_alphanumeric_chars = False
     if not args.bam_file:
@@ -193,7 +194,6 @@ def main():
             sys.exit(-1)
 
         os.system(f"ln -s {args.input_genome} assembly.fasta")
-        os.system(f"ln -s {args.bam_file} bam/aln.sorted.bam")
         mapping.index_bam()
 
     if int(args.hapog_threads) > 1:

@@ -16,7 +16,7 @@ with open(path.join(this_directory, "README.md")) as f:
 setup(
     name="hapog",
     packages=["hapog"],
-    version="1.3.6",
+    version="1.3.8",
     license="CeCILL",
     description="Haplotype-Aware Polishing of Genomes",
     long_description=long_description,
@@ -37,7 +37,7 @@ setup(
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Bio-Informatics",
         "License :: OSI Approved :: CEA CNRS Inria Logiciel Libre License, version 2.1 (CeCILL-2.1)",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
     ],
     entry_points={"console_scripts" : ["hapog = hapog.cli:main"]},
     cmdclass={"build": BuildCommand},

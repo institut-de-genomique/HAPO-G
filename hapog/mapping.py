@@ -5,7 +5,6 @@ import warnings
 
 
 def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
-    ########## BWA INDEX ##########
     print("\nGenerating bwa index...", flush=True)
     cmd = ["bwa", "index", genome]
 
@@ -29,7 +28,6 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
-    ########## BWA MEM ##########
     print("\nLaunching mapping on genome...", flush=True)
     cmd = "bash -c 'bwa mem -t %s %s " % (threads, genome)
 
@@ -64,11 +62,10 @@ def launch_PE_mapping(genome, pe1, pe2, threads, samtools_memory):
     else:
         print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
-    ########## SAMTOOLS INDEX ##########
     index_bam()
 
 
-def launch_LR_mapping(genome, long_reads, threads, samtools_memory):  ########## BWA MEM ##########
+def launch_LR_mapping(genome, long_reads, threads, samtools_memory):
     print("\nLaunching mapping on genome...", flush=True)
     cmd = f"bash -c 'minimap2 -t {threads} -a --secondary=no -x map-pb {genome} {long_reads} 2> logs/minimap2.e"
     cmd += f" | samtools sort -m {samtools_memory} -@ {threads} -o bam/aln.sorted.bam - 2> logs/samtools_sort.e'"
@@ -86,8 +83,31 @@ def launch_LR_mapping(genome, long_reads, threads, samtools_memory):  ##########
     else:
         print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
-    ########## SAMTOOLS INDEX ##########
     index_bam()
+
+
+def remove_secondary_alignments(bam, output_dir):
+    print("\nRemoving secondary alignments from BAM file...", flush=True)
+    cmd = ["samtools", "view", "-b", "-h", "-F", "0x900", bam]
+
+    start = time.perf_counter()
+    with open(f"{output_dir}/cmds/samtools_view.cmds", "w") as cmd_file:
+        print(" ".join(cmd), flush=True, file=cmd_file)
+        
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            _ = subprocess.run(
+                cmd,
+                stdout=open(f"{output_dir}/bam/aln.sorted.bam", "w"),
+                stderr=open(f"{output_dir}/logs/samtools_view.e", "w"),
+                check=True,
+            )
+    except Exception as e:
+        print("\nERROR: Couldn't remove secondary alignments")
+        print(e)
+        exit(1)
+    print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
 
 def index_bam():
