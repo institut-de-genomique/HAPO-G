@@ -56,7 +56,7 @@ def main():
         "-b",
         action="store",
         dest="bam_file",
-        help="Skip mapping step and provide a sorted bam file",
+        help="Skip mapping step and provide a sorted bam file. Important: the BAM file must not contain secondary alignments, please use the 'secondary=no' option in Minimap2.",
         default="",
         required=False,
     )
