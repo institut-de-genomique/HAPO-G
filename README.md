@@ -76,6 +76,9 @@ python3 HAPOG_ROOT/hapog.py \
 
 ### Skipping the mapping step
 The mapping step can be skipped if a sorted BAM file is provided via the `-b` switch. Please verify that your fasta headers don't contain any non-alphanumerical characters (`-`and `_`are accepted) before launching Hapo-G.
+
+**IMPORTANT**: The BAM file should not contain secondary alignments, these could lead to non-ACTG characters being introduced in the consensus sequence. You can use Minimap2's option `secondary=no` to produce a SAM file with no secondary alignments.
+
 A typical command line with a bam file would look like this:
 ```
 python3 HAPOG_ROOT/hapog.py \
