@@ -83,7 +83,7 @@ A typical command line with a bam file would look like this:
 ```
 python3 HAPOG_ROOT/hapog.py \
   --genome assembly.fasta \   # Fasta file of the genome to polish
-  -b mapping.sorted.bam       # Sorted BAM file
+  -b mapping.sorted.bam  \    # Sorted BAM file
   -o polishing \              # Output directory
   -t 36 \                     # Number of threads to use
   -u                          # Include unpolished sequences in the output
