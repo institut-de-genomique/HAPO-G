@@ -111,6 +111,14 @@ def main():
         default="5G",
         required=False,
     )
+    optional_args.add_argument(
+        "--chunk-list",
+        action="store",
+        dest="chunk_list",
+        help="Comma-separated list of chunk numbers to process (e.g., '12,18'). Useful for rerunning failed chunks.",
+        default=None,
+        required=False,
+    )
 
     args = parser.parse_args()
     pipeline.check_dependencies()
@@ -121,6 +129,18 @@ def main():
         args.hapog_threads = args.threads
     if args.bam_file:
         args.bam_file = os.path.abspath(args.bam_file)
+
+    # Parse chunk list if provided
+    chunk_list = None
+    if args.chunk_list:
+        try:
+            chunk_list = [int(x.strip()) for x in args.chunk_list.split(",")]
+            print(f"\nProcessing only chunks: {chunk_list}", flush=True)
+        except ValueError:
+            print(
+                f"ERROR: Invalid chunk list format. Please use comma-separated numbers (e.g., '12,18')"
+            )
+            sys.exit(1)
 
     pe1 = []
     pe2 = []
@@ -173,9 +193,13 @@ def main():
             os.system(f"ln -s {args.input_genome} assembly.fasta")
 
         if use_short_reads:
-            mapping.launch_PE_mapping("assembly.fasta", pe1, pe2, args.threads, args.samtools_mem)
+            mapping.launch_PE_mapping(
+                "assembly.fasta", pe1, pe2, args.threads, args.samtools_mem
+            )
         else:
-            mapping.launch_LR_mapping("assembly.fasta", args.long_reads, args.threads, args.samtools_mem)
+            mapping.launch_LR_mapping(
+                "assembly.fasta", args.long_reads, args.threads, args.samtools_mem
+            )
 
     else:
         if pipeline.check_fasta_headers(args.input_genome):
@@ -208,7 +232,7 @@ def main():
             os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
         os.system(f"ln -s ../bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
-    pipeline.launch_hapog(args.hapog_bin, args.hapog_threads)
+    pipeline.launch_hapog(args.hapog_bin, args.hapog_threads, chunk_list)
     pipeline.merge_results(int(args.threads))
 
     if non_alphanumeric_chars:

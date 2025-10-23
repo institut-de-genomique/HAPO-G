@@ -90,7 +90,9 @@ def create_chunks(genome, threads):
         for record in SeqIO.parse(open(genome), "fasta"):
             if current_chunk_size >= chunk_size and current_chunk != threads:
                 current_chunk_file.close()
-                current_chunk_file = open(f"chunks/chunks_{current_chunk + 1}.fasta", "w")
+                current_chunk_file = open(
+                    f"chunks/chunks_{current_chunk + 1}.fasta", "w"
+                )
                 current_bed_file = open(f"chunks/chunks_{current_chunk + 1}.bed", "w")
                 current_chunk += 1
                 current_chunk_size = 0
@@ -131,7 +133,9 @@ def extract_bam(processes):
             warnings.simplefilter("ignore")
             procs.append(
                 subprocess.Popen(
-                    cmd, stdout=open(bam, "w"), stderr=open("logs/samtools_split.e", "a")
+                    cmd,
+                    stdout=open(bam, "w"),
+                    stderr=open("logs/samtools_split.e", "a"),
                 )
             )
 
@@ -145,15 +149,18 @@ def extract_bam(processes):
             )
             print("Faulty command: {p.args}")
             has_failed = True
-    
+
     if has_failed:
         exit(1)
 
     print(f"Done in {int(time.perf_counter() - start)} seconds", flush=True)
 
 
-def launch_hapog(hapog_bin, parallel_jobs):
-    print(f"\nLaunching Hapo-G on each chunk", flush=True)
+def launch_hapog(hapog_bin, parallel_jobs, chunk_list=None):
+    if chunk_list:
+        print(f"\nLaunching Hapo-G on specified chunks: {chunk_list}", flush=True)
+    else:
+        print(f"\nLaunching Hapo-G on each chunk", flush=True)
     try:
         os.mkdir("hapog_chunks")
     except:
@@ -173,6 +180,14 @@ def launch_hapog(hapog_bin, parallel_jobs):
     procs = []
     for chunk in glob.glob("chunks/*.fasta"):
         chunk_prefix = chunk.split("/")[-1].replace(".fasta", "")
+
+        # Extract chunk number from chunk_prefix (e.g., "chunks_12" -> 12)
+        chunk_number = int(chunk_prefix.split("_")[-1])
+
+        # Skip this chunk if chunk_list is specified and this chunk is not in the list
+        if chunk_list and chunk_number not in chunk_list:
+            continue
+
         cmd = [
             hapog_bin,
             "-b",
@@ -201,7 +216,6 @@ def launch_hapog(hapog_bin, parallel_jobs):
         # Otherwise, wait for any to finish before launching a new one
         while len([p for p in procs if p.poll() is None]) >= int(parallel_jobs):
             time.sleep(1)
-
 
     has_failed = False
     for p in procs:

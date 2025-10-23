@@ -1,2 +1,4 @@
 .vscode
 .idea
+package_build
+hapog.egg-info
