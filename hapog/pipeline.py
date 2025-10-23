@@ -29,9 +29,7 @@ def check_dependencies():
 
 
 def check_fasta_headers(genome):
-    authorized_chars = (
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
-    )
+    authorized_chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-_"
     with open(genome) as genome_file:
         for line in genome_file:
             if line.startswith(">"):
@@ -90,9 +88,7 @@ def create_chunks(genome, threads):
         for record in SeqIO.parse(open(genome), "fasta"):
             if current_chunk_size >= chunk_size and current_chunk != threads:
                 current_chunk_file.close()
-                current_chunk_file = open(
-                    f"chunks/chunks_{current_chunk + 1}.fasta", "w"
-                )
+                current_chunk_file = open(f"chunks/chunks_{current_chunk + 1}.fasta", "w")
                 current_bed_file = open(f"chunks/chunks_{current_chunk + 1}.bed", "w")
                 current_chunk += 1
                 current_chunk_size = 0
@@ -144,9 +140,7 @@ def extract_bam(processes):
         p.wait()
 
         if p.returncode != 0:
-            print(
-                f"ERROR: Samtools view didn't finish correctly, return code: {p.returncode}"
-            )
+            print(f"ERROR: Samtools view didn't finish correctly, return code: {p.returncode}")
             print("Faulty command: {p.args}")
             has_failed = True
 
@@ -240,6 +234,12 @@ def merge_results(threads):
     except:
         pass
 
+    try:
+        for f in glob.glob("hapog_results"):
+            os.remove(f)
+    except:
+        pass
+
     start = time.perf_counter()
 
     with open("hapog_results/hapog.fasta.tmp", "w") as out:
@@ -272,9 +272,7 @@ def rename_results():
     with open("hapog_results/hapog.fasta", "w") as out:
         hapog_tmp = open("hapog_results/hapog.fasta.tmp")
         for record in SeqIO.parse(hapog_tmp, "fasta"):
-            out.write(
-                f">{dict_correspondance[str(record.id).replace('_polished', '')]}\n{record.seq}\n"
-            )
+            out.write(f">{dict_correspondance[str(record.id).replace('_polished', '')]}\n{record.seq}\n")
         hapog_tmp.close()
 
     with open("hapog_results/hapog.changes", "w") as out:
