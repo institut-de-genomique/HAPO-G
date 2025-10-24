@@ -235,7 +235,7 @@ def merge_results(threads):
         pass
 
     try:
-        for f in glob.glob("hapog_results"):
+        for f in glob.glob("hapog_results/*"):
             os.remove(f)
     except:
         pass
