@@ -128,7 +128,7 @@ Contig_1  2000  ref=T read=G  readname=read_2 homo    ratio1=0.8142 ratio2=0.832
 We can see that on the contig `Contig_1`, Hapo-G found a phasing error (`hetero` on the first line) and replaced a A at position 1000 by TA. This change was validated by 74.19% of reads of the same haplotype as the template read (ratio1) and by 42.37% of reads if we do not discriminate on which haplotype they belong to. It also found a mismatch at position 2000 (`homo`) and replaced a T by a G. This change was validated by 83% of reads of no matter which haplotype (ratio2).
 
 
-### Rerunning specific chunks
+## Rerunning specific chunks
 When using multiple `--threads`, Hapo-G splits the assembly into numbered chunks (`chunks_1.fasta`, `chunks_2.fasta`, …) and processes each one independently. If a subset of chunks failed, you can rerun only those pieces by passing their numbers as a comma-separated list:
 ```
 hapog --chunk-list 3,7,12 \
