@@ -111,6 +111,14 @@ def main():
         default="5G",
         required=False,
     )
+    optional_args.add_argument(
+        "--chunk-list",
+        action="store",
+        dest="chunk_list",
+        help="Comma-separated list of chunk numbers to process (e.g., '12,18'). Useful for rerunning failed chunks.",
+        default=None,
+        required=False,
+    )
 
     args = parser.parse_args()
     pipeline.check_dependencies()
@@ -122,20 +130,34 @@ def main():
     if args.bam_file:
         args.bam_file = os.path.abspath(args.bam_file)
 
+    # Parse chunk list if provided
+    chunk_list = None
+    if args.chunk_list:
+        try:
+            chunk_list = [int(x.strip()) for x in args.chunk_list.split(",")]
+            print(f"\nProcessing only chunks: {chunk_list}", flush=True)
+        except ValueError:
+            print(
+                f"ERROR: Invalid chunk list format. Please use comma-separated numbers (e.g., '12,18')"
+            )
+            sys.exit(1)
+
     pe1 = []
     pe2 = []
     use_short_reads = False
 
-    try:
-        os.mkdir(args.output_dir)
-    except:
-        print(
-            f"\nOutput directory {args.output_dir} can't be created, please erase it before launching Hapo-G.\n"
-        )
-        sys.exit(1)
-    os.mkdir(f"{args.output_dir}/bam")
-    os.mkdir(f"{args.output_dir}/logs")
-    os.mkdir(f"{args.output_dir}/cmds")
+    if not args.chunk_list:
+        try:
+            os.mkdir(args.output_dir)
+        except:
+            print(
+                f"\nOutput directory {args.output_dir} can't be created, please erase it before launching Hapo-G.\n"
+            )
+            sys.exit(1)
+
+        os.mkdir(f"{args.output_dir}/bam")
+        os.mkdir(f"{args.output_dir}/logs")
+        os.mkdir(f"{args.output_dir}/cmds")
 
     if args.bam_file:
         mapping.remove_secondary_alignments(args.bam_file, args.output_dir)
@@ -161,7 +183,10 @@ def main():
     os.chdir(args.output_dir)
 
     non_alphanumeric_chars = False
-    if not args.bam_file:
+    if args.chunk_list and os.path.exists("correspondance.txt"):
+        non_alphanumeric_chars = True
+
+    if not args.bam_file and not args.chunk_list:
         non_alphanumeric_chars = pipeline.check_fasta_headers(args.input_genome)
         if non_alphanumeric_chars:
             print(
@@ -173,12 +198,16 @@ def main():
             os.system(f"ln -s {args.input_genome} assembly.fasta")
 
         if use_short_reads:
-            mapping.launch_PE_mapping("assembly.fasta", pe1, pe2, args.threads, args.samtools_mem)
+            mapping.launch_PE_mapping(
+                "assembly.fasta", pe1, pe2, args.threads, args.samtools_mem
+            )
         else:
-            mapping.launch_LR_mapping("assembly.fasta", args.long_reads, args.threads, args.samtools_mem)
+            mapping.launch_LR_mapping(
+                "assembly.fasta", args.long_reads, args.threads, args.samtools_mem
+            )
 
     else:
-        if pipeline.check_fasta_headers(args.input_genome):
+        if not args.chunk_list and pipeline.check_fasta_headers(args.input_genome):
             print(
                 "\nERROR: Non-alphanumeric characters detected in fasta headers will cause samtools view to crash.",
                 flush=True,
@@ -193,13 +222,14 @@ def main():
             )
             sys.exit(-1)
 
-        os.system(f"ln -s {args.input_genome} assembly.fasta")
-        mapping.index_bam()
+        if not args.chunk_list:
+            os.system(f"ln -s {args.input_genome} assembly.fasta")
+            mapping.index_bam()
 
-    if int(args.hapog_threads) > 1:
+    if not args.chunk_list and int(args.hapog_threads) > 1:
         pipeline.create_chunks("assembly.fasta", args.threads)
         pipeline.extract_bam(int(args.threads))
-    else:
+    elif not args.chunk_list:
         os.mkdir("chunks")
         os.mkdir("chunks_bam")
         if non_alphanumeric_chars:
@@ -208,7 +238,7 @@ def main():
             os.system(f"ln -s {args.input_genome} chunks/chunks_1.fasta")
         os.system(f"ln -s ../bam/aln.sorted.bam chunks_bam/chunks_1.bam")
 
-    pipeline.launch_hapog(args.hapog_bin, args.hapog_threads)
+    pipeline.launch_hapog(args.hapog_bin, args.hapog_threads, chunk_list)
     pipeline.merge_results(int(args.threads))
 
     if non_alphanumeric_chars:
