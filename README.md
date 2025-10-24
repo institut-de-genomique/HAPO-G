@@ -93,7 +93,7 @@ python3 HAPOG_ROOT/hapog.py \
 #### `hapog_results/hapog.fasta`
 The corrected sequences. Hapo-G will parse the read alignments to the genome and focus on phasing errors (i.e the assembly switched from one haplotype to the other) and base errors (insertions, deletions, mismatches) that may be related or not to phasing errors. Remember to include the `-u` flag to tell Hapo-G to output sequences with no reads mapped and thus could not be changed.
 
-Hapo-G will not add any new contigs or scaffolds to the assembly if, as an example, one of the haplotype is missing in the input assembly file. Instead, it will correct the haplotype that is present in the input file and output a corrected version of the sequence that is phased as best as we could with the data at hand. 
+Hapo-G will not add any new contigs or scaffolds to the assembly if, as an example, one of the haplotype is missing in the input assembly file. Instead, it will correct the haplotype that is present in the input file and output a corrected version of the sequence that is phased as best as we could with the data at hand.
 
 As an example, let’s consider the following heterozygous genome:
 ```text
@@ -128,7 +128,18 @@ Contig_1  2000  ref=T read=G  readname=read_2 homo    ratio1=0.8142 ratio2=0.832
 We can see that on the contig `Contig_1`, Hapo-G found a phasing error (`hetero` on the first line) and replaced a A at position 1000 by TA. This change was validated by 74.19% of reads of the same haplotype as the template read (ratio1) and by 42.37% of reads if we do not discriminate on which haplotype they belong to. It also found a mismatch at position 2000 (`homo`) and replaced a T by a G. This change was validated by 83% of reads of no matter which haplotype (ratio2).
 
 
+### Rerunning specific chunks
+When using multiple `--threads`, Hapo-G splits the assembly into numbered chunks (`chunks_1.fasta`, `chunks_2.fasta`, …) and processes each one independently. If a subset of chunks failed, you can rerun only those pieces by passing their numbers as a comma-separated list:
+```
+hapog --chunk-list 3,7,12 \
+      -o polishing \
+      [other options]
+```
+
+Re-run the command with the same output directory that contains the previous run. Hapo-G will reuse the existing mapping data, regenerate only the requested chunk files and refresh the merged `hapog_results/` outputs.
+
 ## Acknowledgements
+
 Some Cmake files have been taken and/or modified from several projects. We would like to thank:
 - [panguangze](https://delta.cs.cityu.edu.hk/gzpan2) for their `FindHTSLIB.cmake` library
 - [L. Kärkkäinen](https://github.com/Tronic) for their `LibFindMacros.cmake` library
